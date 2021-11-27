@@ -35,6 +35,9 @@ private bool isEmptyLine(str line){
 	return line == "" || /^\s+$/ := line;
 }
 
+/*
+* Lines of code for project without empty lines and comments
+*/
 private list[str] linesOfCode(loc project)
 {
 	M3 model = createM3FromEclipseProject(project);
