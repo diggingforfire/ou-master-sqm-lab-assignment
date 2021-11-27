@@ -35,21 +35,19 @@ private bool isEmptyLine(str line){
 	return line == "" || /^\s+$/ := line;
 }
 
-private int linesOfCode(loc project)
+private list[str] linesOfCode(loc project)
 {
 	M3 model = createM3FromEclipseProject(project);
 	list[str] codeFiles = [ readFile(fileLocation) | fileLocation <- files(model) ];
-	list[str] linesOfCode = [ line | 
+	return [ line | 
 		codeFile <- codeFiles, 
 		line <- split("\n", filterComments(codeFile)), 
 		!isEmptyLine(line)
 	];
-
-	return size(linesOfCode);
 }
 
-public void printLinesOfCode(loc project)
+public void printNumberOfLinesOfCode(loc project)
 {
 	print("lines of code: ");
-	println(linesOfCode(project));
+	println(size(linesOfCode(project)));
 }
