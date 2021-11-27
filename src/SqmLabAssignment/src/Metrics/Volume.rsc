@@ -1,4 +1,4 @@
-module Volume
+module Metrics::Volume
 
 import IO;
 import String;
@@ -48,17 +48,10 @@ private int linesOfCode(loc project)
 	return size(linesOfCode);
 }
 
-private void printLinesOfCode(loc project)
+public void printLinesOfCode(loc project)
 {
 	print("lines of code: ");
 	println(linesOfCode(project));
 }
 
 
-public void analyseProjects()
-{
-	println("smallsql\n----");
-	printLinesOfCode(|project://smallsql/|);
-	println("hsqldb\n----");
-	printLinesOfCode(|project://hsqldb/|);
-}
