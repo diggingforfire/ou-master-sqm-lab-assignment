@@ -12,6 +12,26 @@ import lang::java::m3::Core;
 import lang::java::m3::AST;
 import analysis::m3::Core;
 
+public void printNumberOfLinesOfCode(loc project)
+{
+	print("lines of code: ");
+	println(size(linesOfCode(project)));
+}
+
+/*
+* Lines of code for project without empty lines and comments
+*/
+private list[str] linesOfCode(loc project)
+{
+	M3 model = createM3FromEclipseProject(project);
+	list[str] codeFiles = [ readFile(fileLocation) | fileLocation <- files(model) ];
+	return [ line | 
+		codeFile <- codeFiles, 
+		line <- split("\n", filterComments(codeFile)), 
+		!isEmptyLine(line)
+	];
+}
+
 private str filterComments(str file){
 	return visit(file){
 		/*
@@ -33,24 +53,4 @@ private str filterComments(str file){
 */
 private bool isEmptyLine(str line){
 	return line == "" || /^\s+$/ := line;
-}
-
-/*
-* Lines of code for project without empty lines and comments
-*/
-private list[str] linesOfCode(loc project)
-{
-	M3 model = createM3FromEclipseProject(project);
-	list[str] codeFiles = [ readFile(fileLocation) | fileLocation <- files(model) ];
-	return [ line | 
-		codeFile <- codeFiles, 
-		line <- split("\n", filterComments(codeFile)), 
-		!isEmptyLine(line)
-	];
-}
-
-public void printNumberOfLinesOfCode(loc project)
-{
-	print("lines of code: ");
-	println(size(linesOfCode(project)));
 }
