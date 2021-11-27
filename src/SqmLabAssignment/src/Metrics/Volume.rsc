@@ -53,5 +53,3 @@ public void printLinesOfCode(loc project)
 	print("lines of code: ");
 	println(linesOfCode(project));
 }
-
-

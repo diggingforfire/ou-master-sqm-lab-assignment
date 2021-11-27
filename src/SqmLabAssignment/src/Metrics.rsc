@@ -6,7 +6,7 @@ import Metrics::Volume;
 public void analyseProjects()
 {
 	println("smallsql\n----");
-	printLinesOfCode(|project://smallsql/|);
+	printLinesOfCode(|project://smallsql0.21_src/|);
 	println("hsqldb\n----");
 	printLinesOfCode(|project://hsqldb/|);
 }
