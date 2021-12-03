@@ -35,7 +35,8 @@ private map[str, int] FindDuplicates(loc project)
 {
 	list[list[str]] sanitizedLinesOfCodePerLocation =	
 	[ 
-		[trim(line) | 
+		[
+			trim(line) | 
 			line <- split("\n", filterComments(readFile(fileLocation))), 
 			!isEmptyOrWhiteSpaceLine(line)
 		] | fileLocation <- files(createM3FromEclipseProject(project))
