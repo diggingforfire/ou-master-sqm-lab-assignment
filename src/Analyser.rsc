@@ -10,10 +10,10 @@ public void analyseProjects()
 	println("smallsql\n----");
 	
 	//println("lines of code: <lineCount(project)>");
-	println("duplication: <codeDuplicationPercentage(project)>");
+	println("duplication: <numberOfDuplicatesForProject(project)>");
 
 	project = |project://hsqldb/|;
 	println("hsqldb\n----");
 	//println("lines of code: <lineCount(project)>");
-	println("duplication: <codeDuplicationPercentage(project)>");
+	println("duplication: <numberOfDuplicatesForProject(project)>");
 }

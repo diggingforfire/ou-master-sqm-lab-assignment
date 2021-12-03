@@ -18,51 +18,54 @@ import Utils::LineUtils;
 /*
 * 
 */
-public int codeDuplicationPercentage(loc project) {
-	tuple[rel[loc, list[str]] codeFiles, map[str, rel[loc, int]] mappedLines] normalized = linesOfCode(project);
+public int numberOfDuplicatesForProject(loc project) {
+	map[str, int] codeBlocksAndNumberOfOccurrences = FindDuplicates(project);
 	
-	int totalNumberOfDuplicates = 0;
-	for(line <- normalized.mappedLines) {
-		rel[loc, int] occurrences = normalized.mappedLines[line];
-		int numberOfDuplicates = size(occurrences) - 1;
-		totalNumberOfDuplicates += numberOfDuplicates;
-		//if(numberOfDuplicates > 0)
-		//{		
-		//	//println("number of duplicates:");
-		//	//println(numberOfDuplicates);
-		//	//println(line);
-		//}
+	int numberOfDuplicates = 0;
+	for(codeBlock <- codeBlocksAndNumberOfOccurrences) {
+		numberOfDuplicates += codeBlocksAndNumberOfOccurrences[codeBlock];
 	}
-	return totalNumberOfDuplicates;
+	
+	return numberOfDuplicates;
 }
 
-/*
-* Lines of code for project without empty lines
-*/
-private tuple[rel[loc, list[str]] codeFiles, map[str, rel[loc, int]] mappedLines] linesOfCode(loc project)
+int numberOfConsecutiveDuplicateLines = 6;
+
+private map[str, int] FindDuplicates(loc project)
 {
-	M3 model = createM3FromEclipseProject(project);
-	map[str, rel[loc, int]] mappedLines = ();
-	
-	rel[loc, list[str]] codeFiles =	{ 
-		<fileLocation, [line | line <- readFileLines(fileLocation), !isEmptyOrWhiteSpaceLine(line)]> | 
-		fileLocation <- files(model) 
+	rel[loc, list[str]] sanitizedLinesOfCodePerLocation =	
+	{ 
+		<fileLocation, [trim(line) | 
+			line <- split("\n", filterComments(readFile(fileLocation))), 
+			!isEmptyOrWhiteSpaceLine(line)
+		]> | fileLocation <- files(createM3FromEclipseProject(project))
 	};
-	for(<fileLocation, fileLines> <- codeFiles)
+	
+	map[str, int] mappedLines = ();
+	for (<filelocation, linesOfCode> <- sanitizedLinesOfCodePerLocation)
 	{
-		for(int lineNumber <- [0..size(fileLines)])
+		int end = size(linesOfCode);
+		int begin = max(0, end - numberOfConsecutiveDuplicateLines);
+		
+		while(begin != 0)
 		{
-			str line = fileLines[lineNumber]; 
-			
-			if(line in mappedLines)
+			str sixLines = "";
+			for(int i <- [begin .. end])
 			{
-				mappedLines[line] += {<fileLocation, lineNumber>};
+				sixLines += linesOfCode[i];
+			}
+			if(sixLines in mappedLines)
+			{
+				mappedLines[sixLines] += 1;
 			}
 			else
 			{
-				mappedLines += (line: {<fileLocation, lineNumber>});
+				mappedLines += (sixLines: 0);
 			}
+			end = max(0, end - numberOfConsecutiveDuplicateLines);
+			begin = max(0, end - numberOfConsecutiveDuplicateLines);
 		}
 	}
-	return <codeFiles, mappedLines>;
+	
+	return mappedLines;
 }
