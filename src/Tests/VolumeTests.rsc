@@ -1,6 +1,7 @@
 module Tests::VolumeTests
 
 import Metrics::Volume;
+import Utils::LineUtils;
 
 // isEmptyOrWhiteSpaceLine tests
 

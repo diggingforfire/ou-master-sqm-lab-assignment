@@ -12,6 +12,8 @@ import lang::java::m3::Core;
 import lang::java::m3::AST;
 import analysis::m3::Core;
 
+import Utils::LineUtils;
+
 /*
 * Count of lines of code for project without empty lines and comments
 */
@@ -47,11 +49,4 @@ public str filterComments(str file){
 		*/
 		case /\/\/.*/ => ""
 	}
-}
-
-/*
-* empty string or start with (^) space, tab or linebreak (\s) till the end ($) of the string
-*/
-public bool isEmptyOrWhiteSpaceLine(str line){
-	return line == "" || /^\s+$/ := line;
 }
