@@ -49,18 +49,18 @@ private map[str, int] FindDuplicates(loc project)
 		
 		while(begin != 0)
 		{
-			str sixLines = "";
+			str codeBlock = "";
 			for(int i <- [begin .. end])
 			{
-				sixLines += linesOfCode[i];
+				codeBlock += linesOfCode[i];
 			}
 			if(sixLines in mappedLines)
 			{
-				mappedLines[sixLines] += 1;
+				mappedLines[codeBlock] += 1;
 			}
 			else
 			{
-				mappedLines += (sixLines: 0);
+				mappedLines += (codeBlock: 0);
 			}
 			end = max(0, end - numberOfConsecutiveDuplicateLines);
 			begin = max(0, end - numberOfConsecutiveDuplicateLines);
