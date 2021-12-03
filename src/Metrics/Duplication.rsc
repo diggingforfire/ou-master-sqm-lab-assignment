@@ -33,16 +33,16 @@ int numberOfConsecutiveDuplicateLines = 6;
 
 private map[str, int] FindDuplicates(loc project)
 {
-	rel[loc, list[str]] sanitizedLinesOfCodePerLocation =	
-	{ 
-		<fileLocation, [trim(line) | 
+	list[list[str]] sanitizedLinesOfCodePerLocation =	
+	[ 
+		[trim(line) | 
 			line <- split("\n", filterComments(readFile(fileLocation))), 
 			!isEmptyOrWhiteSpaceLine(line)
-		]> | fileLocation <- files(createM3FromEclipseProject(project))
-	};
+		] | fileLocation <- files(createM3FromEclipseProject(project))
+	];
 	
 	map[str, int] mappedLines = ();
-	for (<filelocation, linesOfCode> <- sanitizedLinesOfCodePerLocation)
+	for (linesOfCode <- sanitizedLinesOfCodePerLocation)
 	{
 		int end = size(linesOfCode);
 		int begin = max(0, end - numberOfConsecutiveDuplicateLines);
