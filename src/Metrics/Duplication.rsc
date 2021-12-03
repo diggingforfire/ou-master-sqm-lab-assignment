@@ -54,7 +54,7 @@ private map[str, int] FindDuplicates(loc project)
 			{
 				codeBlock += linesOfCode[i];
 			}
-			if(sixLines in mappedLines)
+			if(codeBlock in mappedLines)
 			{
 				mappedLines[codeBlock] += 1;
 			}
