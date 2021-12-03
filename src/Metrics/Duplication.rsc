@@ -62,7 +62,7 @@ private map[str, int] FindDuplicates(loc project)
 			{
 				mappedLines += (codeBlock: 0);
 			}
-			end = max(0, end - numberOfConsecutiveDuplicateLines);
+			end = max(0, end - 1);
 			begin = max(0, end - numberOfConsecutiveDuplicateLines);
 		}
 	}
