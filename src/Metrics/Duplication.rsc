@@ -37,24 +37,20 @@ private list[list[str]] sanitizedLinesOfCodePerFile(loc project) {
 */
 public map[str, int] findDuplicates(list[list[str]] linesOfCodePerFile) {	
 	map[str, int] mappedLines = ();
+	
 	for (linesOfCode <- linesOfCodePerFile)
-	for (codeBlock <- concatenateToCodeBlocks(linesOfCode))
-	{
-		if(codeBlock in mappedLines)
-		{
-			if(mappedLines[codeBlock] == 0)
-			{
+	for (codeBlock <- concatenateToCodeBlocks(linesOfCode)) {
+		if(codeBlock in mappedLines) {
+			if(mappedLines[codeBlock] == 0) {
 				// first found duplication should count both lines
 				mappedLines[codeBlock] += 2; 
 			}
-			else
-			{
+			else {
 				// all successive duplicates  
 				mappedLines[codeBlock] += 1;
 			}
 		}
-		else
-		{
+		else {
 			// first occurence, no duplicates yet
 			mappedLines += (codeBlock: 0);
 		}

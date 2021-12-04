@@ -33,17 +33,14 @@ public int codeBlockSize = 6;
 */
 public list[str] concatenateToCodeBlocks(list[str] linesOfCode) {
 	list[str] codeBlocks = [];
-	if(size(linesOfCode) < 6) 
-	{
+	if(size(linesOfCode) < 6) {
 		return codeBlocks;
 	}
 	
 	int begin = size(linesOfCode) - codeBlockSize;
-	for(end <- [size(linesOfCode) .. 5])
-	{
+	for(end <- [size(linesOfCode) .. 5]) {
 		str codeBlock = "";
-		for(int i <- [begin .. end])
-		{
+		for(int i <- [begin .. end]) {
 			codeBlock += linesOfCode[i];
 		}
 		
