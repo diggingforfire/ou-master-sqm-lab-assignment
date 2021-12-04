@@ -22,8 +22,7 @@ public int numberOfDuplicatedLinesForProject(loc project) {
 	return sum([mappedLines[line] | line <- mappedLines]);
 }
 
-private list[list[str]] sanitizedLinesOfCodePerFile(loc project)
-{
+private list[list[str]] sanitizedLinesOfCodePerFile(loc project) {
 	return [
 		[
 			trim(line) | 
@@ -36,8 +35,7 @@ private list[list[str]] sanitizedLinesOfCodePerFile(loc project)
 /*
 * takes lines of code per file and returns the number of duplicates per code block
 */
-public map[str, int] findDuplicates(list[list[str]] linesOfCodePerFile)
-{	
+public map[str, int] findDuplicates(list[list[str]] linesOfCodePerFile) {	
 	map[str, int] mappedLines = ();
 	for (linesOfCode <- linesOfCodePerFile)
 	for (codeBlock <- concatenateToCodeBlocks(linesOfCode))
