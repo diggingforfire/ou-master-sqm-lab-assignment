@@ -55,10 +55,14 @@ int codeBlockSize = 6;
 
 public list[str] concatenateToCodeBlocks(list[str] linesOfCode)
 {
-	int end = size(linesOfCode);
-	int begin = max(0, end - codeBlockSize);
 	list[str] codeBlocks = [];
-	while(begin >= 0)
+	if(size(linesOfCode) < 6) 
+	{
+		return codeBlocks;
+	}
+	
+	int begin = size(linesOfCode) - codeBlockSize;
+	for(end <- [size(linesOfCode) .. 5])
 	{
 		str codeBlock = "";
 		for(int i <- [begin .. end])
@@ -68,8 +72,7 @@ public list[str] concatenateToCodeBlocks(list[str] linesOfCode)
 		
 		codeBlocks+= codeBlock;
 		
-		end = max(0, end - 1);
-		begin = max(0, end - codeBlockSize);
+		begin -= 1;
 	}
 	return codeBlocks;
 }
