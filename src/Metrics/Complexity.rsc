@@ -1,12 +1,14 @@
 module Metrics::Complexity
 
-import Metrics::Volume;
 import lang::java::jdt::m3::Core;
 import lang::java::m3::Core;
 import lang::java::m3::AST;
 import analysis::m3::Core;
 import util::Math;
 import IO;
+
+import Metrics::Volume;
+import Utils::MethodUtils;
 
 data RiskLevel = Simple() | Moderate() | High() | VeryHigh();
 
@@ -68,32 +70,6 @@ public map[RiskLevel, int] unitComplexity(loc project, num projectLineCount) {
  	}
 
  	return ( risk : floor((riskLevelLineCount[risk] / projectLineCount) * 100) | risk <- riskLevelLineCount);
-}
-
-/*
- * List of methods/constructors and their ASTs (in a single file)
- */
-public lrel[str, Statement] getFileMethodsStatements(loc file) {
-	 set[Declaration] declarations = createAstsFromFiles({file}, false);
-	 return getMethodStatements(declarations);
-}
-
-public lrel[str, Statement] getProjectMethodsStatements(loc project) {
-	M3 model = createM3FromEclipseProject(project);
- 	set[loc] projectFiles = { file | file <- files(model) } ;
- 	set[Declaration] declarations = createAstsFromFiles(projectFiles, false);
-	return getMethodStatements(declarations);
-}
- 
-private lrel[str, Statement] getMethodStatements(set[Declaration] declarations) {
- 	lrel[str, Statement] result = [];
- 	
- 	visit(declarations) {
- 		case \method(_, name, _, _, implementation): result += <name, implementation>;
- 		case \constructor(name, _, _, implementation): result += <name, implementation>;
-	}
-	
- 	return result;
 }
  
 private RiskLevel getRiskLevel(int cyclomaticComplexity) {
