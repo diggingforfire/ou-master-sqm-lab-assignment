@@ -3,7 +3,6 @@ module Metrics::Duplication
 import IO;
 import String;
 import List;
-import Map;
 import Set;
 import String;
 import util::Math;
@@ -19,54 +18,58 @@ import Utils::LineUtils;
 * 
 */
 public int numberOfDuplicatesForProject(loc project) {
-	map[str, int] codeBlocksAndNumberOfOccurrences = FindDuplicates(project);
-	
-	int numberOfDuplicates = 0;
-	for(codeBlock <- codeBlocksAndNumberOfOccurrences) {
-		numberOfDuplicates += codeBlocksAndNumberOfOccurrences[codeBlock];
-	}
-	
-	return numberOfDuplicates;
+	map[str, int] mappedLines = findDuplicates(sanitizedLinesOfCodePerFile(project));
+	return sum([mappedLines[line] | line <- mappedLines]);
 }
 
-int numberOfConsecutiveDuplicateLines = 6;
-
-private map[str, int] FindDuplicates(loc project)
+private list[list[str]] sanitizedLinesOfCodePerFile(loc project)
 {
-	list[list[str]] sanitizedLinesOfCodePerLocation =	
-	[ 
+	return [
 		[
 			trim(line) | 
-			line <- split("\n", filterComments(readFile(fileLocation))), 
-			!isEmptyOrWhiteSpaceLine(line)
+				line <- split("\n", filterComments(readFile(fileLocation))), 
+				!isEmptyOrWhiteSpaceLine(line)
 		] | fileLocation <- files(createM3FromEclipseProject(project))
 	];
-	
+}
+
+public map[str, int] findDuplicates(list[list[str]] linesOfCodePerFile)
+{	
 	map[str, int] mappedLines = ();
-	for (linesOfCode <- sanitizedLinesOfCodePerLocation)
+	for (linesOfCode <- linesOfCodePerFile)
+	for (codeBlock <- concatenateToCodeBlocks(linesOfCode))
 	{
-		int end = size(linesOfCode);
-		int begin = max(0, end - numberOfConsecutiveDuplicateLines);
-		
-		while(begin != 0)
+		if(codeBlock in mappedLines)
 		{
-			str codeBlock = "";
-			for(int i <- [begin .. end])
-			{
-				codeBlock += linesOfCode[i];
-			}
-			if(codeBlock in mappedLines)
-			{
-				mappedLines[codeBlock] += 1;
-			}
-			else
-			{
-				mappedLines += (codeBlock: 0);
-			}
-			end = max(0, end - 1);
-			begin = max(0, end - numberOfConsecutiveDuplicateLines);
+			mappedLines[codeBlock] += 1;
+		}
+		else
+		{
+			mappedLines += (codeBlock: 0);
 		}
 	}
-	
 	return mappedLines;
+}
+
+int codeBlockSize = 6;
+
+public list[str] concatenateToCodeBlocks(list[str] linesOfCode)
+{
+	int end = size(linesOfCode);
+	int begin = max(0, end - codeBlockSize);
+	list[str] codeBlocks = [];
+	while(begin >= 0)
+	{
+		str codeBlock = "";
+		for(int i <- [begin .. end])
+		{
+			codeBlock += linesOfCode[i];
+		}
+		
+		codeBlocks+= codeBlock;
+		
+		end = max(0, end - 1);
+		begin = max(0, end - codeBlockSize);
+	}
+	return codeBlocks;
 }
