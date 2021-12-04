@@ -50,29 +50,3 @@ public map[str, int] findDuplicates(list[list[str]] linesOfCodePerFile)
 	}
 	return mappedLines;
 }
-
-int codeBlockSize = 6;
-
-public list[str] concatenateToCodeBlocks(list[str] linesOfCode)
-{
-	list[str] codeBlocks = [];
-	if(size(linesOfCode) < 6) 
-	{
-		return codeBlocks;
-	}
-	
-	int begin = size(linesOfCode) - codeBlockSize;
-	for(end <- [size(linesOfCode) .. 5])
-	{
-		str codeBlock = "";
-		for(int i <- [begin .. end])
-		{
-			codeBlock += linesOfCode[i];
-		}
-		
-		codeBlocks+= codeBlock;
-		
-		begin -= 1;
-	}
-	return codeBlocks;
-}
