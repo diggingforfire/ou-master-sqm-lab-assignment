@@ -27,6 +27,10 @@ public str filterComments(str file){
 
 int codeBlockSize = 6;
 
+/*
+* Concatenates lines of code in blocks of {codeBlockSize}
+* blocks overlap each other
+*/
 public list[str] concatenateToCodeBlocks(list[str] linesOfCode)
 {
 	list[str] codeBlocks = [];

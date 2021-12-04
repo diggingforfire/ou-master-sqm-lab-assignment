@@ -1,19 +1,29 @@
 module Analyser
 
 import IO;
+import util::Math;
+
 import Metrics::Volume;
 import Metrics::Duplication;
 
 public void analyseProjects()
 {
-	loc project = |project://smallsql0.21_src/|;
 	println("smallsql\n----");
-	
-	//println("lines of code: <lineCount(project)>");
-	println("duplication: <numberOfDuplicatesForProject(project)>");
+	analyseProject(|project://smallsql0.21_src/|);
 
-	project = |project://hsqldb/|;
 	println("hsqldb\n----");
-	//println("lines of code: <lineCount(project)>");
-	println("duplication: <numberOfDuplicatesForProject(project)>");
+	analyseProject(|project://hsqldb/|);
+}
+
+private void analyseProject(loc project)
+{
+	numberOfLinesOfCode = lineCount(project);
+	println("lines of code: <numberOfLinesOfCode>");
+	duplicatedDensity = duplicatedLinesDensity(numberOfLinesOfCode, numberOfDuplicatedLinesForProject(project));
+	println("duplication: <round(duplicatedDensity, 0.01)>%");
+}
+
+private real duplicatedLinesDensity(int numberOfLinesOfCode, int numberOfDuplicatedLines)
+{
+	return toReal(numberOfDuplicatedLines) / toReal(numberOfLinesOfCode) * 100;
 }

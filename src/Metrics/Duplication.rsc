@@ -15,9 +15,9 @@ import analysis::m3::Core;
 import Utils::LineUtils;
 
 /*
-* 
+* returns the number of duplicated lines for a project
 */
-public int numberOfDuplicatesForProject(loc project) {
+public int numberOfDuplicatedLinesForProject(loc project) {
 	map[str, int] mappedLines = findDuplicates(sanitizedLinesOfCodePerFile(project));
 	return sum([mappedLines[line] | line <- mappedLines]);
 }
@@ -33,6 +33,9 @@ private list[list[str]] sanitizedLinesOfCodePerFile(loc project)
 	];
 }
 
+/*
+* takes lines of code per file and returns the number of duplicates per code block
+*/
 public map[str, int] findDuplicates(list[list[str]] linesOfCodePerFile)
 {	
 	map[str, int] mappedLines = ();
@@ -41,10 +44,20 @@ public map[str, int] findDuplicates(list[list[str]] linesOfCodePerFile)
 	{
 		if(codeBlock in mappedLines)
 		{
-			mappedLines[codeBlock] += 1;
+			if(mappedLines[codeBlock] == 0)
+			{
+				// first found duplication should count both lines
+				mappedLines[codeBlock] += 2; 
+			}
+			else
+			{
+				// all successive duplicates  
+				mappedLines[codeBlock] += 1;
+			}
 		}
 		else
 		{
+			// first occurence, no duplicates yet
 			mappedLines += (codeBlock: 0);
 		}
 	}
