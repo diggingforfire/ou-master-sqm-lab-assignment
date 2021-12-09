@@ -10,7 +10,7 @@ public bool isEmptyOrWhiteSpaceLine(str line) {
 }
 
 public str filterComments(str file) {
-	return visit(file){
+	return visit(file) {
 		/*
 		Select part that starts with
 		Followed by 0 or more *
