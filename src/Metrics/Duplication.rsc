@@ -18,42 +18,74 @@ import Utils::LineUtils;
 * returns the number of duplicated lines for a project
 */
 public int numberOfDuplicatedLinesForProject(loc project) {
-	map[str, int] mappedLines = findDuplicates(sanitizedLinesOfCodePerFile(project));
-	return sum([mappedLines[line] | line <- mappedLines]);
+	return numberOfDuplicatedLines(sanitizedLinesOfCodePerFile(project));
 }
 
-private list[list[str]] sanitizedLinesOfCodePerFile(loc project) {
+public int numberOfDuplicatedLines(lrel[loc, list[str]] linesOfCodePerFile) {
+	map[str, rel[loc location, int offset]] occurrencesPerFile = mapOccurrencesPerFile(linesOfCodePerFile);
+	
+	rel[loc location, int offset] duplicates = {
+		locationAndOffsets |
+			codeBlock <- occurrencesPerFile,
+			size(occurrencesPerFile[codeBlock]) > 1,
+			locationAndOffsets <- occurrencesPerFile[codeBlock]			
+	};	
+	
+	return calculateDuplicates(mapDuplicatesPerFile(duplicates));
+}
+
+private lrel[loc, list[str]] sanitizedLinesOfCodePerFile(loc project) {
 	return [
-		[
+		<fileLocation, [
 			trim(line) | 
 				line <- split("\n", filterComments(readFile(fileLocation))), 
 				!isEmptyOrWhiteSpaceLine(line)
-		] | fileLocation <- files(createM3FromEclipseProject(project))
+		]> | fileLocation <- files(createM3FromEclipseProject(project))
 	];
 }
 
-/*
-* takes lines of code per file and returns the number of duplicates per code block
-*/
-public map[str, int] findDuplicates(list[list[str]] linesOfCodePerFile) {	
-	map[str, int] mappedLines = ();
-	
-	for (linesOfCode <- linesOfCodePerFile)
-	for (codeBlock <- concatenateToCodeBlocks(linesOfCode)) {
-		if(codeBlock in mappedLines) {
-			if(mappedLines[codeBlock] == 0) {
-				// first found duplication should count both lines
-				mappedLines[codeBlock] += 2; 
-			}
-			else {
-				// all successive duplicates  
-				mappedLines[codeBlock] += 1;
-			}
+private map[str, rel[loc location, int offset]] mapOccurrencesPerFile(lrel[loc, list[str]] linesOfCodePerFile) {
+	map[str, rel[loc location, int offset]] occurrencesPerFile = ();
+	for (<fileLocation, linesOfCode> <- linesOfCodePerFile)
+	for (<str codeBlock, int offset> <- concatenateToCodeBlocks(linesOfCode)) {
+		if(codeBlock in occurrencesPerFile) {
+			occurrencesPerFile[codeBlock] += {<fileLocation, offset>};
 		}
 		else {
-			// first occurence, no duplicates yet
-			mappedLines += (codeBlock: 0);
+			occurrencesPerFile += (codeBlock: {<fileLocation, offset>});
 		}
 	}
-	return mappedLines;
+	return occurrencesPerFile;
+}
+
+private map[loc location, set[int] offsets] mapDuplicatesPerFile(rel[loc location, int offset] duplicates) {
+	map[loc location, set[int] offsets] duplicatesPerFile = ();
+	for (<location, offset> <- duplicates) {
+		if(location in duplicatesPerFile) {
+			duplicatesPerFile[location] += {offset};
+		}
+		else {
+			duplicatesPerFile += (location: {offset});
+		}
+	}
+	return duplicatesPerFile;
+}
+
+private int calculateDuplicates(map[loc location, set[int] offsets] duplicatesPerFile)
+{
+	int numberOfDuplicates = 0;
+	for (loc file <- duplicatesPerFile) {
+		list[int] offsetsForFile = sort(duplicatesPerFile[file]);
+		for (int i <- [0..size(offsetsForFile)]) {
+			int offset = offsetsForFile[i];
+			if(i + 1 < size(offsetsForFile)) {
+				int nextOffset = offsetsForFile[i + 1];
+				numberOfDuplicates += min(nextOffset - offset, codeBlockSize);
+			}
+			else {
+				numberOfDuplicates += codeBlockSize;
+			}
+		}
+	}
+	return numberOfDuplicates;
 }

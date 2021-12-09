@@ -17,12 +17,14 @@ public void analyseProjects() {
 }
 
 private void analyseProject(loc project) {
-	projectLineCount = lineCount(project);
+	int projectLineCount = lineCount(project);
 	println("lines of code: <projectLineCount>");
-	
 	printComplexity(unitComplexity(project, projectLineCount));
 	
-	duplicatedDensity = duplicatedLinesDensity(projectLineCount, numberOfDuplicatedLinesForProject(project));
+	int numberOfDuplicatedLines = numberOfDuplicatedLinesForProject(project);
+	println("number of duplicatedLines: <numberOfDuplicatedLines>");
+	
+	duplicatedDensity = duplicatedLinesDensity(projectLineCount, numberOfDuplicatedLines);
 	println("duplication: <round(duplicatedDensity, 0.01)>%");
 }
 

@@ -31,22 +31,22 @@ public int codeBlockSize = 6;
 * Concatenates lines of code in blocks of {codeBlockSize}
 * blocks overlap each other
 */
-public list[str] concatenateToCodeBlocks(list[str] linesOfCode) {
-	list[str] codeBlocks = [];
+public lrel[str codeblock, int offset] concatenateToCodeBlocks(list[str] linesOfCode) {
+	lrel[str codeblock, int offset] codeBlocks = [];
 	if(size(linesOfCode) < 6) {
 		return codeBlocks;
 	}
 	
-	int begin = size(linesOfCode) - codeBlockSize;
+	int offset = size(linesOfCode) - codeBlockSize;
 	for(end <- [size(linesOfCode) .. 5]) {
 		str codeBlock = "";
-		for(int i <- [begin .. end]) {
+		for(int i <- [offset .. end]) {
 			codeBlock += linesOfCode[i];
 		}
 		
-		codeBlocks+= codeBlock;
+		codeBlocks+= <codeBlock, offset>;
 		
-		begin -= 1;
+		offset -= 1;
 	}
 	return codeBlocks;
 }

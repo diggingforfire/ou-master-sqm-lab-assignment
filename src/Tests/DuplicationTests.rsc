@@ -1,52 +1,52 @@
 module Tests::DuplicationTests
 
-import List;
+import IO;
 
 import Metrics::Duplication;
 
+loc fooLoc = |project://fooLoc/|;
 public test bool findDuplicates_givenOneUniqueBlock_givesNoDuplicates() {
-	linesOfCode = [["1", "2", "3", "4", "5", "6"]];
-	mappedLines = findDuplicates(linesOfCode);
-	return sum([mappedLines[line] | line <- mappedLines]) == 0;
+	
+	linesOfCode = [<fooLoc,["1", "2", "3", "4", "5", "6"]>];
+	return numberOfDuplicatedLines(linesOfCode) == 0;
 }
 
-public test bool findDuplicates_givenTwoDuplicateBlocks_givesTwoDuplicates() {
-	linesOfCode = [["1", "2", "3", "4", "5", "6", "Some other code", "1", "2", "3", "4", "5", "6"]];
-	mappedLines = findDuplicates(linesOfCode);
-	return sum([mappedLines[line] | line <- mappedLines]) == 2;
+public test bool findDuplicates_givenTwoDuplicateBlocks_givesTwelveDuplicates() {
+	linesOfCode = [<fooLoc,["1", "2", "3", "4", "5", "6", "Some other code", "1", "2", "3", "4", "5", "6"]>];
+	println("expected: 12, actual<numberOfDuplicatedLines(linesOfCode)>");
+	return numberOfDuplicatedLines(linesOfCode) == 12;
 }
 
-public test bool findDuplicates_givenThreeDuplicateBlocks_givesThreeDuplicates() {
-	linesOfCode = [["1", "2", "3", "4", "5", "6", "Some other code", "1", "2", "3", "4", "5", "6", "1", "2", "3", "4", "5", "6"]];
-	mappedLines = findDuplicates(linesOfCode);
-	return sum([mappedLines[line] | line <- mappedLines]) == 3;
+public test bool findDuplicates_givenThreeDuplicateBlocks_givesEighteenDuplicates() {
+	linesOfCode = [<fooLoc,["1", "2", "3", "4", "5", "6", "Some other code", "1", "2", "3", "4", "5", "6", "1", "2", "3", "4", "5", "6"]>];
+	println("expected: 18, actual<numberOfDuplicatedLines(linesOfCode)>");
+	return numberOfDuplicatedLines(linesOfCode) == 18;
 }
 
-public test bool findDuplicates_givenTwoDuplicateBlocksInSeperateFiles_givesTwoDuplicates() {
+public test bool findDuplicates_givenTwoDuplicateBlocksInSeperateFiles_givesTwelveDuplicates() {
 	linesOfCode = [
-		["1", "2", "3", "4", "5", "6", "Some other code"], 
-		["Some other code", "1", "2", "3", "4", "5", "6"]
+		<fooLoc,["1", "2", "3", "4", "5", "6", "Some other code"]>, 
+		<|project://fooLoc2/|,["Some other code", "1", "2", "3", "4", "5", "6"]>
 	];
-	mappedLines = findDuplicates(linesOfCode);
-	return sum([mappedLines[line] | line <- mappedLines]) == 2;
+	println("expected: 12, actual<numberOfDuplicatedLines(linesOfCode)>");
+	return numberOfDuplicatedLines(linesOfCode) == 12;
 }
 
 public test bool findDuplicates_givenTwoDuplicateBlocksOfLenght5InSeperateFiles_givesNoDuplicates() {
 	linesOfCode = [
-		["1", "2", "3", "4", "5", "Some other code"], 
-		["Some other code", "1", "2", "3", "4", "5"]
+		<fooLoc,["1", "2", "3", "4", "5", "Some other code"]>, 
+		<fooLoc,["Some other code", "1", "2", "3", "4", "5"]>
 	];
-	mappedLines = findDuplicates(linesOfCode);
-	return sum([mappedLines[line] | line <- mappedLines]) == 0;
+	return numberOfDuplicatedLines(linesOfCode) == 0;
 }
 
-public test bool findDuplicates_givenThreeDuplicateBlocksOfLenght5InSeperateFiles_givesThreeDuplicates() {
+public test bool findDuplicates_givenThreeDuplicateBlocksOfLenght5InSeperateFiles_givesEighteenDuplicates() {
 	linesOfCode = [
-		["1", "2", "3", "4", "5", "6", "Some other code"], 
-		["Some other code", "1", "2", "3", "4", "5", "6"],
-		["1", "2", "3", "4", "5", "6"],
-		["Some other code", "a", "b", "c", "d", "e", "Some other code"]
+		<fooLoc,["1", "2", "3", "4", "5", "6", "Some other code"]>, 
+		<|project://fooLoc2/|,["Some other code", "1", "2", "3", "4", "5", "6"]>,
+		<|project://fooLoc3/|,["1", "2", "3", "4", "5", "6"]>,
+		<|project://fooLoc4/|,["Some other code", "a", "b", "c", "d", "e", "Some other code"]>
 	];
-	mappedLines = findDuplicates(linesOfCode);
-	return sum([mappedLines[line] | line <- mappedLines]) == 3;
+	println("expected: 18, actual<numberOfDuplicatedLines(linesOfCode)>");
+	return numberOfDuplicatedLines(linesOfCode) == 18;
 }
