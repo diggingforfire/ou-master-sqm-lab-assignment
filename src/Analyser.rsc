@@ -28,8 +28,8 @@ private void analyseProject(loc project) {
 	println("duplication: <round(duplicatedDensity, 0.01)>%");
 }
 
-private real duplicatedLinesDensity(int numberOfLinesOfCode, int numberOfDuplicatedLines) {
-	return toReal(numberOfDuplicatedLines) / toReal(numberOfLinesOfCode) * 100;
+private num duplicatedLinesDensity(num numberOfLinesOfCode, num numberOfDuplicatedLines) {
+	return (numberOfDuplicatedLines / numberOfLinesOfCode) * 100;
 }
 
 public void printComplexity(map[RiskLevel, int] complexity) {
