@@ -1,8 +1,8 @@
-module Tests::VolumeTests
+module Tests::LineUtilsTests
 
-import Metrics::Volume;
+import Utils::LineUtils;
 
-// isEmptyOrWhiteSpaceLine tests
+//isEmptyOrWhiteSpaceLine tests
 
 public test bool isEmptyOrWhiteSpaceLine_EmptyString() {
 	return isEmptyOrWhiteSpaceLine("");
@@ -46,4 +46,27 @@ public test bool filterComments_SingleLineComment_Non_Space_Prefix() {
 public test bool filterComments_SingleLineComment_In_String() {
 	// currently fails
 	return filterComments("Foo(\"//not a comment\"") == "Foo(\"//not a comment\"";
+}
+
+// code block tests
+
+public test bool concatenateToCodeBlocks_givenSevenLines_createsTwoCodeBlocks() {
+	linesOfCode = ["1", "2", "3", "4", "5", "6", "7"];
+
+	codeBlocks = concatenateToCodeBlocks(linesOfCode);
+	return codeBlocks == ["234567", "123456"];
+}
+
+public test bool concatenateToCodeBlocks_givenSixLines_createsOneCodeBlock() {
+	linesOfCode = ["1", "2", "3", "4", "5", "6"];
+
+	codeBlocks = concatenateToCodeBlocks(linesOfCode);
+	return codeBlocks == ["123456"];
+}
+
+public test bool concatenateToCodeBlocks_givenFiveLines_createsNoCodeBlocks() {
+	linesOfCode = ["1", "2", "3", "4", "5"];
+
+	codeBlocks = concatenateToCodeBlocks(linesOfCode);
+	return codeBlocks == [];
 }

@@ -1,32 +1,35 @@
 module Analyser
 
 import IO;
-import Metrics::Volume;
-import Metrics::Complexity;
+import util::Math;
 import lang::java::m3::AST;
 
-public void analyseProjects() {
+import Metrics::Volume;
+import Metrics::Complexity;
+import Metrics::Duplication;
 
-	loc smallsql = |project://smallsql0.21_src/|;
-	
-	int projectLineCount = lineCount(smallsql);
+public void analyseProjects() {
 	println("smallsql\n----");
-	println("lines of code: <projectLineCount>");
-	
-	map[RiskLevel, int] complexity = unitComplexity(smallsql, projectLineCount);
-	printComplexity(complexity);
-	
-	
-	loc hsqldb = |project://hsqldb/|;
+	analyseProject(|project://smallsql0.21_src/|);
+
 	println("hsqldb\n----");
-	projectLineCount = lineCount(hsqldb);
+	analyseProject(|project://hsqldb/|);
+}
+
+private void analyseProject(loc project) {
+	int projectLineCount = lineCount(project);
 	println("lines of code: <projectLineCount>");
+	printComplexity(unitComplexity(project, projectLineCount));
 	
-	complexity = unitComplexity(hsqldb, projectLineCount);
-	printComplexity(complexity);
- 
+	int numberOfDuplicatedLines = numberOfDuplicatedLinesForProject(project);
+	println("number of duplicatedLines: <numberOfDuplicatedLines>");
 	
-	//printComplexityyData(smallsql);
+	duplicatedDensity = duplicatedLinesDensity(projectLineCount, numberOfDuplicatedLines);
+	println("duplication: <round(duplicatedDensity, 0.01)>%");
+}
+
+private num duplicatedLinesDensity(num numberOfLinesOfCode, num numberOfDuplicatedLines) {
+	return (numberOfDuplicatedLines / numberOfLinesOfCode) * 100;
 }
 
 public void printComplexity(map[RiskLevel, int] complexity) {
@@ -42,9 +45,9 @@ public void printComplexity(map[RiskLevel, int] complexity) {
 // just some diagnostics
 public void printComplexityDiagnosticData(loc project) {
 	lrel[str, Statement] methodStatements = getProjectMethodsStatements(project);
-	
+
 	for ( <name, implementation> <- methodStatements) {
 		int complexity = cyclomaticComplexity(implementation);
 		println("CC: <complexity> - Method: <name> - Source: (<implementation.src>)");
  	}
-}
+} 
