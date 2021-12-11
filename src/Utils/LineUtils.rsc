@@ -5,12 +5,12 @@ import List;
 /*
 * empty string or start with (^) space, tab or linebreak (\s) till the end ($) of the string
 */
-public bool isEmptyOrWhiteSpaceLine(str line){
+public bool isEmptyOrWhiteSpaceLine(str line) {
 	return line == "" || /^\s+$/ := line;
 }
 
-public str filterComments(str file){
-	return visit(file){
+public str filterComments(str file) {
+	return visit(file) {
 		/*
 		Select part that starts with
 		Followed by 0 or more *
@@ -25,32 +25,28 @@ public str filterComments(str file){
 	}
 }
 
-int codeBlockSize = 6;
+public int codeBlockSize = 6;
 
 /*
 * Concatenates lines of code in blocks of {codeBlockSize}
 * blocks overlap each other
 */
-public list[str] concatenateToCodeBlocks(list[str] linesOfCode)
-{
-	list[str] codeBlocks = [];
-	if(size(linesOfCode) < 6) 
-	{
+public lrel[str codeblock, int offset] concatenateToCodeBlocks(list[str] linesOfCode) {
+	lrel[str codeblock, int offset] codeBlocks = [];
+	if(size(linesOfCode) < 6) {
 		return codeBlocks;
 	}
 	
-	int begin = size(linesOfCode) - codeBlockSize;
-	for(end <- [size(linesOfCode) .. 5])
-	{
+	int offset = size(linesOfCode) - codeBlockSize;
+	for(end <- [size(linesOfCode) .. 5]) {
 		str codeBlock = "";
-		for(int i <- [begin .. end])
-		{
+		for(int i <- [offset .. end]) {
 			codeBlock += linesOfCode[i];
 		}
 		
-		codeBlocks+= codeBlock;
+		codeBlocks+= <codeBlock, offset>;
 		
-		begin -= 1;
+		offset -= 1;
 	}
 	return codeBlocks;
 }

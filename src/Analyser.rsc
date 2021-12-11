@@ -8,8 +8,7 @@ import Metrics::Volume;
 import Metrics::Complexity;
 import Metrics::Duplication;
 
-public void analyseProjects()
-{
+public void analyseProjects() {
 	println("smallsql\n----");
 	analyseProject(|project://smallsql0.21_src/|);
 
@@ -17,20 +16,20 @@ public void analyseProjects()
 	analyseProject(|project://hsqldb/|);
 }
 
-private void analyseProject(loc project)
-{
-	projectLineCount = lineCount(project);
+private void analyseProject(loc project) {
+	int projectLineCount = lineCount(project);
 	println("lines of code: <projectLineCount>");
-	
 	printComplexity(unitComplexity(project, projectLineCount));
 	
-	duplicatedDensity = duplicatedLinesDensity(projectLineCount, numberOfDuplicatedLinesForProject(project));
+	int numberOfDuplicatedLines = numberOfDuplicatedLinesForProject(project);
+	println("number of duplicatedLines: <numberOfDuplicatedLines>");
+	
+	duplicatedDensity = duplicatedLinesDensity(projectLineCount, numberOfDuplicatedLines);
 	println("duplication: <round(duplicatedDensity, 0.01)>%");
 }
 
-private real duplicatedLinesDensity(int numberOfLinesOfCode, int numberOfDuplicatedLines)
-{
-	return toReal(numberOfDuplicatedLines) / toReal(numberOfLinesOfCode) * 100;
+private num duplicatedLinesDensity(num numberOfLinesOfCode, num numberOfDuplicatedLines) {
+	return (numberOfDuplicatedLines / numberOfLinesOfCode) * 100;
 }
 
 public void printComplexity(map[RiskLevel, int] complexity) {
