@@ -1,22 +1,11 @@
 module Metrics::UnitSize
 
-import Metrics::Volume;
-import lang::java::jdt::m3::Core;
-import lang::java::m3::Core;
-import lang::java::m3::AST;
-import analysis::m3::Core;
-import util::Math;
-import IO;
+import Metrics::Maintainability;
 
-import lang::java::jdt::m3::Core;
-import lang::java::m3::Core;
-import lang::java::m3::AST;
-import analysis::m3::Core;
-import util::Math;
-import IO;
-
-import Metrics::Volume;
-import Utils::MethodUtils;
-
-data RiskLevel = Simple() | Moderate() | High() | VeryHigh();
-
+public RiskLevel getRiskLevelUnitSizeComplexity(int lineCountMethod) {
+	if (lineCountMethod > 74) return VeryHigh();
+	if (lineCountMethod >= 44) return High();
+	if (lineCountMethod >= 40) return Moderate();
+ 	
+ 	return Simple();
+ }
