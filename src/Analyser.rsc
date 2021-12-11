@@ -27,7 +27,6 @@ private void analyseProject(loc project) {
 	println("number of units: <size(methods)>");
 	
 	map[RiskLevel, tuple[int cyclomaticComplexityPercentage, int unitSizeComplexityPercentage]] maintainability = unitMaintainability(projectLineCount, methods);
-	println(maintainability);
 	map[RiskLevel, int] complexity = (risk:maintainability[risk].cyclomaticComplexityPercentage | risk <- maintainability);
 	printComplexities(complexity);
 	
