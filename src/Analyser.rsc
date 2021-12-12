@@ -58,6 +58,7 @@ private void analyseProject(loc project) {
 	
 	println();
 	println("overall maintainability score: <rankingAsString(averageRanking([analysabilityScore, changabilityScore, testabilityScore]))>"); // TODO: add stabilityScore
+	println();
 }
 
 private void printComplexities(map[RiskLevel, int] complexity) {
