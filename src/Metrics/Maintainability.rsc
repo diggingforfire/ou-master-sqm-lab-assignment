@@ -7,20 +7,19 @@ import lang::java::m3::AST;
 import Metrics::Volume;
 import Metrics::Complexity;
 import Metrics::UnitSize;
+import Metrics::Scores;
 import Utils::MethodUtils;
-
-public data RiskLevel = Simple() | Moderate() | High() | VeryHigh();
 
  /*
  * Unit complexity rating based on risk levels
  */
-public str maintainabilityRating(map[RiskLevel, int] unitComplexity) {
-	if (unitComplexity[VeryHigh()] == 0 && unitComplexity[High()] == 0 && unitComplexity[Moderate()] <= 25) return "++";
-	if (unitComplexity[VeryHigh()] == 0 && unitComplexity[High()] <= 5 && unitComplexity[Moderate()] <= 30) return "+";
-	if (unitComplexity[VeryHigh()] == 0 && unitComplexity[High()] <= 10 && unitComplexity[Moderate()] <= 40) return "+/-";
-	if (unitComplexity[VeryHigh()] <= 5 && unitComplexity[High()] <= 15 && unitComplexity[Moderate()] <= 50) return "-";
+public Ranking getMaintainabilityRanking(map[RiskLevel, int] unitComplexity) {
+	if (unitComplexity[VeryHigh()] == 0 && unitComplexity[High()] == 0 && unitComplexity[Moderate()] <= 25) return Highest();
+	if (unitComplexity[VeryHigh()] == 0 && unitComplexity[High()] <= 5 && unitComplexity[Moderate()] <= 30) return High();
+	if (unitComplexity[VeryHigh()] == 0 && unitComplexity[High()] <= 10 && unitComplexity[Moderate()] <= 40) return Medium();
+	if (unitComplexity[VeryHigh()] <= 5 && unitComplexity[High()] <= 15 && unitComplexity[Moderate()] <= 50) return Low();
 	
-	return "--";
+	return Lowest();
 }
 
 /*
@@ -32,7 +31,7 @@ public map[RiskLevel, tuple[int cyclomaticComplexityPercentage, int unitSizeComp
 		
  	for (methodStatement <- methodStatements) {
  		str sourceText = readFile(methodStatement.src);
- 		int lineCountMethod = lineCount(sourceText);
+ 		int lineCountMethod = getLineCount(sourceText);
  		
  		RiskLevel cyclomaticComplexityrisk = getRiskLevelCyclomaticComplexity(methodStatement);
 		riskLevelLineCount[cyclomaticComplexityrisk].lineCountCyclomaticComplexity += lineCountMethod;

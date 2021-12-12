@@ -13,18 +13,19 @@ import lang::java::m3::AST;
 import analysis::m3::Core;
 
 import Utils::LineUtils;
+import Metrics::Scores;
 
 /*
 * Count of lines of code for project without empty lines and comments
 */
-public int lineCount(loc project) {
+public int getLineCount(loc project) {
 	return size(linesOfCode(project));
 }
 
 /*
 * Count of lines of code for file without empty lines and comments
 */
-public int lineCount(str file) {
+public int getLineCount(str file) {
 	return size(linesOfCode([file]));
 }
 
@@ -43,4 +44,12 @@ private list[str] linesOfCode(list[str] codeFiles) {
 		line <- split("\n", filterComments(codeFile)), 
 		!isEmptyOrWhiteSpaceLine(line)
 	];
+}
+
+public Ranking getVolumeRanking(int lineCount) {
+	if(lineCount <= 66) return Highest();
+	if(lineCount <= 246) return High();
+	if(lineCount <= 665) return Medium();
+	if(lineCount <= 1310) return Low();
+	return Lowest();
 }

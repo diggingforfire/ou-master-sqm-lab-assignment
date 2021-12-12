@@ -9,18 +9,20 @@ import Metrics::Volume;
 import Metrics::Complexity;
 import Metrics::Duplication;
 import Metrics::Maintainability;
+import Metrics::Scores;
 import Utils::MethodUtils;
 
 public void analyseProjects() {
-	println("smallsql\n----");
+	println("smallsql");
 	analyseProject(|project://smallsql0.21_src/|);
 
-	println("hsqldb\n----");
+	println("hsqldb");
 	analyseProject(|project://hsqldb/|);
 }
 
 private void analyseProject(loc project) {
-	int projectLineCount = lineCount(project);
+	println("----");
+	int projectLineCount = getLineCount(project);
 	println("lines of code: <projectLineCount>");
 	
 	list[Statement] methods = getProjectMethodsStatements(project);
@@ -35,18 +37,27 @@ private void analyseProject(loc project) {
 	println("duplication: <round(duplicatedDensity, 0.01)>%");
 	
 	println();
-	println("volume score: ??");
-	println("unit size score: <maintainabilityRating((risk:maintainability[risk].unitSizeComplexityPercentage | risk <- maintainability))>");
-	println("unit complexity score: <maintainabilityRating(complexity)>");
-	println("duplication score: ??");
+	Ranking volumeRanking = getVolumeRanking(projectLineCount);
+	println("volume score: <rankingAsString(volumeRanking)>");
+	Ranking unitSizeRanking = getMaintainabilityRanking((risk:maintainability[risk].unitSizeComplexityPercentage | risk <- maintainability));
+	println("unit size score: <rankingAsString(unitSizeRanking)>");
+	Ranking unitComplexityRanking = getMaintainabilityRanking(complexity);
+	println("unit complexity score: <rankingAsString(unitComplexityRanking)>");
+	Ranking duplicationRanking = getDuplicationRanking(duplicatedDensity);
+	println("duplication score: <rankingAsString(duplicationRanking)>");
 	
 	println();
-	println("analysability score: ??");
-	println("changability score: ??");
-	println("testability score: ??");
+	
+	analysabilityScore = averageRanking([volumeRanking, duplicationRanking, unitSizeRanking]); // TODO: add unit testing ranking
+	println("analysability score: <rankingAsString(analysabilityScore)>"); 
+	changabilityScore = averageRanking([unitComplexityRanking, duplicationRanking]);
+	println("changability score: <rankingAsString(changabilityScore)>");
+	//stabilityScore = averageRanking([]); // TODO: add unit testing ranking
+	testabilityScore = averageRanking([unitComplexityRanking, unitSizeRanking]); // TODO: add unit testing ranking
+	println("testability score: <rankingAsString(testabilityScore)>");
 	
 	println();
-	println("overall maintainability score: ??");
+	println("overall maintainability score: <rankingAsString(averageRanking([analysabilityScore, changabilityScore, testabilityScore]))>"); // TODO: add stabilityScore
 }
 
 private void printComplexities(map[RiskLevel, int] complexity) {

@@ -1,6 +1,6 @@
 module Metrics::UnitSize
 
-import Metrics::Maintainability;
+import Metrics::Scores;
 
 public RiskLevel getRiskLevelUnitSizeComplexity(int lineCountMethod) {
 	if (lineCountMethod > 74) return VeryHigh();
