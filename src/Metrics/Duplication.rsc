@@ -12,6 +12,7 @@ import lang::java::m3::Core;
 import lang::java::m3::AST;
 import analysis::m3::Core;
 
+import Metrics::Scores;
 import Utils::LineUtils;
 
 /*
@@ -88,4 +89,12 @@ private int calculateDuplicates(map[loc location, set[int] offsets] duplicatesPe
 		}
 	}
 	return numberOfDuplicates;
+}
+
+public Ranking getDuplicationRanking(num density) {
+	if(density <= 3) return Highest();
+	if(density <= 5) return High();
+	if(density <= 10) return Medium();
+	if(density <= 20) return Low();
+	return Lowest();
 }
