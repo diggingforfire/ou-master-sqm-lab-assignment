@@ -7,16 +7,19 @@ import lang::java::m3::AST;
 import Metrics::Volume;
 import Metrics::Complexity;
 import Metrics::Duplication;
+import Metrics::Coverage;
 
 public void analyseProjects() {
 	println("smallsql\n----");
 	analyseProject(|project://smallsql0.21_src/|);
 
-	println("hsqldb\n----");
-	analyseProject(|project://hsqldb/|);
+	//println("hsqldb\n----");
+	//analyseProject(|project://hsqldb/|);
 }
 
 private void analyseProject(loc project) {
+	println(getMethodCoverage(project));
+/*
 	int projectLineCount = lineCount(project);
 	println("lines of code: <projectLineCount>");
 	printComplexity(unitComplexity(project, projectLineCount));
@@ -26,6 +29,7 @@ private void analyseProject(loc project) {
 	
 	duplicatedDensity = duplicatedLinesDensity(projectLineCount, numberOfDuplicatedLines);
 	println("duplication: <round(duplicatedDensity, 0.01)>%");
+	*/
 }
 
 private num duplicatedLinesDensity(num numberOfLinesOfCode, num numberOfDuplicatedLines) {

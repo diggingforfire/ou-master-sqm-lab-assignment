@@ -47,7 +47,5 @@ private void addInstrumentationToMethods(loc project, set[loc] allMethods) {
  * instrumentation is injected at the start of the method
  */
 public str getInstrumentedMethod(str source) {
-	return visit (source) {
-			case /\{/ => "{ System.out.println(new Throwable().getStackTrace()[0]);"
-		}
+	return replaceFirst(source, "{", "{ System.out.println(new Throwable().getStackTrace()[0]);");
 }
