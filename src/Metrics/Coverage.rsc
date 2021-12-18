@@ -1,22 +1,23 @@
 module Metrics::Coverage
 
 import Metrics::Complexity;
+import Metrics::Scores;
 import lang::java::m3::Core;
+import lang::java::m3::AST;
 import lang::java::jdt::Core;
 import lang::java::jdt::m3::Core;
-import lang::java::m3::AST;
+import lang::java::\syntax::Java15;
 import IO;
 import List;
 import Set;
 import String;
 import ParseTree;
-import lang::java::\syntax::Java15;
 import Type;
 
 /*
  * Method coverage expessed as <coveredMethodCount, totalMethodCount>
  */
-public tuple[int, int] getMethodCoverage(loc project, str projectName) {
+public tuple[int covered, int total] getMethodCoverage(loc project, str projectName) {
 
 	M3 model = createM3FromEclipseProject(project);
 
@@ -50,7 +51,6 @@ private void addInstrumentationToProject(M3 model) {
  	for (projectFile <- projectFiles) {
  		try CompilationUnit compilationUnit = parse(#CompilationUnit, projectFile); catch: { println("Could not parse <projectFile.path>"); continue; }
 
-		println("Instrumenting <projectFile.path>");
 		newCompilationUnit = visit(compilationUnit) { 
  			case (MethodBody) `{<BlockStm* post>}` 
  				=> (MethodBody) `{
@@ -61,4 +61,12 @@ private void addInstrumentationToProject(M3 model) {
 				
 		writeFile(projectFile, newCompilationUnit);
  	}
+}
+
+public Ranking getCoverageRanking(num percentage) {
+	if(percentage < 20) return Lowest();
+	if(percentage < 60) return Low();
+	if(percentage < 80) return Medium();
+	if(percentage < 95) return High();
+	return Highest();
 }
