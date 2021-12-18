@@ -7,20 +7,19 @@ import List;
 
 import Metrics::Volume;
 import Metrics::Complexity;
+import Metrics::Coverage;
 import Metrics::Duplication;
 import Metrics::Maintainability;
 import Metrics::Scores;
 import Utils::MethodUtils;
 
 public void analyseProjects() {
-	println("smallsql");
-	analyseProject(|project://smallsql0.21_src/|);
-
-	println("hsqldb");
-	analyseProject(|project://hsqldb/|);
+	analyseProject(|project://smallsql0.21_src/|, "smallsql");
+	analyseProject(|project://hsqldb/|, "org.hsqldb");
 }
 
-private void analyseProject(loc project) {
+private void analyseProject(loc project, str projectName) {
+	println(projectName);
 	println("----");
 	int projectLineCount = getLineCount(project);
 	println("lines of code: <projectLineCount>");
@@ -36,6 +35,10 @@ private void analyseProject(loc project) {
 	duplicatedDensity = duplicatedLinesDensity(projectLineCount, numberOfDuplicatedLines);
 	println("duplication: <round(duplicatedDensity, 0.01)>%");
 	
+	tuple[int covered, int total] coverage = getMethodCoverage(project, projectName);
+	num testCoveragePercentage = testCoveragePercentage(coverage.covered, coverage.total);
+	Ranking coverageRanking = getCoverageRanking(testCoveragePercentage);
+
 	println();
 	Ranking volumeRanking = getVolumeRanking(projectLineCount);
 	println("volume score: <rankingAsString(volumeRanking)>");
@@ -48,16 +51,17 @@ private void analyseProject(loc project) {
 	
 	println();
 	
-	analysabilityScore = averageRanking([volumeRanking, duplicationRanking, unitSizeRanking]); // TODO: add unit testing ranking
+	analysabilityScore = averageRanking([volumeRanking, duplicationRanking, unitSizeRanking, coverageRanking]); 
 	println("analysability score: <rankingAsString(analysabilityScore)>"); 
 	changabilityScore = averageRanking([unitComplexityRanking, duplicationRanking]);
 	println("changability score: <rankingAsString(changabilityScore)>");
-	//stabilityScore = averageRanking([]); // TODO: add unit testing ranking
-	testabilityScore = averageRanking([unitComplexityRanking, unitSizeRanking]); // TODO: add unit testing ranking
+	stabilityScore = averageRanking([coverageRanking]); 
+	println("stability score: <rankingAsString(stabilityScore)>");
+	testabilityScore = averageRanking([unitComplexityRanking, unitSizeRanking, coverageRanking]); 
 	println("testability score: <rankingAsString(testabilityScore)>");
 	
 	println();
-	println("overall maintainability score: <rankingAsString(averageRanking([analysabilityScore, changabilityScore, testabilityScore]))>"); // TODO: add stabilityScore
+	println("overall maintainability score: <rankingAsString(averageRanking([analysabilityScore, changabilityScore, testabilityScore, stabilityScore]))>");
 	println();
 }
 
@@ -69,6 +73,9 @@ private void printComplexities(map[RiskLevel, int] complexity) {
 	println(" * very high: <complexity[VeryHigh()]>%");
 }
 
+private num testCoveragePercentage(num coveredMethods, num allMethods) {
+	return (coveredMethods / allMethods) * 100;
+}
 private num duplicatedLinesDensity(num numberOfLinesOfCode, num numberOfDuplicatedLines) {
 	return (numberOfDuplicatedLines / numberOfLinesOfCode) * 100;
 }
