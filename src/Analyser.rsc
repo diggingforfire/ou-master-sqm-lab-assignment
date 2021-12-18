@@ -11,15 +11,13 @@ import Metrics::Coverage;
 
 public void analyseProjects() {
 	println("smallsql\n----");
-	analyseProject(|project://smallsql0.21_src/|);
+	analyseProject(|project://smallsql0.21_src/|, "smallsql");
 
-	//println("hsqldb\n----");
-	//analyseProject(|project://hsqldb/|);
+	println("hsqldb\n----");
+	analyseProject(|project://hsqldb/|, "org.hsqldb");
 }
 
-private void analyseProject(loc project) {
-	println(getMethodCoverage(project));
-/*
+private void analyseProject(loc project, str projectName) {
 	int projectLineCount = lineCount(project);
 	println("lines of code: <projectLineCount>");
 	printComplexity(unitComplexity(project, projectLineCount));
@@ -29,7 +27,9 @@ private void analyseProject(loc project) {
 	
 	duplicatedDensity = duplicatedLinesDensity(projectLineCount, numberOfDuplicatedLines);
 	println("duplication: <round(duplicatedDensity, 0.01)>%");
-	*/
+	
+	coverage = getMethodCoverage(project, projectName);
+	println(coverage);
 }
 
 private num duplicatedLinesDensity(num numberOfLinesOfCode, num numberOfDuplicatedLines) {
