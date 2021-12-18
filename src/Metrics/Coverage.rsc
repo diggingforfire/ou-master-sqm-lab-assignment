@@ -21,7 +21,8 @@ public tuple[int covered, int total] getMethodCoverage(loc project, str projectN
 
 	M3 model = createM3FromEclipseProject(project);
 
-	if (!exists(|file://C:/Dev/ou-master-sqm-lab-assignment/<projectName>_coverage.txt|)) {
+	loc coverageResultFile = |project://ou-master-sqm-lab-assignment/<projectName>_coverage.txt|;
+	if (!exists(coverageResultFile)) {
 	
 		// 1. Add instrumentation to the project source files
 		addInstrumentationToProject(model);
@@ -33,7 +34,7 @@ public tuple[int covered, int total] getMethodCoverage(loc project, str projectN
 	
 		// 3. Interpret the results 
 		set[str] coveredMethods = toSet([ line | 
-			line <- readFileLines(|file://C:/Dev/ou-master-sqm-lab-assignment/<projectName>_coverage.txt|), /^<projectName>.+\.java:\d+\)$/ := line]);
+			line <- readFileLines(coverageResultFile), /^<projectName>.+\.java:\d+\)$/ := line]);
 		
 		set[loc] allMethods = methods(model);
 			
