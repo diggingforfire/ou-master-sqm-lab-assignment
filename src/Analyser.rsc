@@ -38,7 +38,7 @@ private void analyseProject(loc project, str projectName) {
 	tuple[int covered, int total] coverage = getMethodCoverage(project, projectName);
 	num testCoveragePercentage = testCoveragePercentage(coverage.covered, coverage.total);
 	Ranking coverageRanking = getCoverageRanking(testCoveragePercentage);
-	println(testCoveragePercentage);
+
 	println();
 	Ranking volumeRanking = getVolumeRanking(projectLineCount);
 	println("volume score: <rankingAsString(volumeRanking)>");
