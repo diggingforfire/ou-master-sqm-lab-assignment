@@ -28,7 +28,7 @@ public void exportProjectMetrics(loc project, str projectName) {
 	int projectDuplicatedLinesCount = numberOfDuplicatedLinesForProject(project);
 	
 	map[str path, map[loc location, int lineCount] methods] methodLineCountPerFile = getMethodLineCountPerFile(project);
-	map[str path, map[loc location, int lineCount] methods] complexityPerFile = getCyclomaticComplexityPerFile(project);
+	map[str path, map[loc location, int cyclomaticComplexity] methods] complexityPerFile = getCyclomaticComplexityPerFile(project);
 	
 	methodLineCountPerFileMetrics = { file(
 		path, 
