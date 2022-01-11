@@ -35,6 +35,10 @@ public int numberOfDuplicatedLines(lrel[loc, list[str]] linesOfCodePerFile) {
 	return calculateDuplicates(mapDuplicatesPerFile(duplicates));
 }
 
+public int numberOfDuplicatedLinesPerFile() {
+
+}
+
 private lrel[loc, list[str]] sanitizedLinesOfCodePerFile(loc project) {
 	return [
 		<fileLocation, [
