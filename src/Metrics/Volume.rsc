@@ -13,6 +13,7 @@ import lang::java::m3::AST;
 import analysis::m3::Core;
 
 import Utils::LineUtils;
+import Utils::MethodUtils;
 import Metrics::Scores;
 
 /*
@@ -27,6 +28,28 @@ public int getLineCount(loc project) {
 */
 public int getLineCount(str file) {
 	return size(linesOfCode([file]));
+}
+
+/*
+* Count of lines of code per file for all project methods without empty lines and comments
+*/
+public map[str path, map[loc location, int lineCount] methods] getMethodLineCountPerFile(loc project) {
+	map[str path, map[loc location, int lineCount] methods] methodLineCountPerFile = ();
+	
+	list[Statement] methodStatements = getProjectMethodsStatements(project);
+	
+	for (methodStatement <- methodStatements) {
+		str sourceText = readFile(methodStatement.src);
+ 		int lineCountMethod = getLineCount(sourceText);
+ 		
+ 		if (methodStatement.src.path notin methodLineCountPerFile) {
+ 			methodLineCountPerFile[methodStatement.src.path] = ();
+ 		}
+ 		
+	 	methodLineCountPerFile[methodStatement.src.path][methodStatement.src] = lineCountMethod;
+	}
+	
+	return methodLineCountPerFile;
 }
 
 /*

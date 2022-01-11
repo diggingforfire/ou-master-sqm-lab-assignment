@@ -5,7 +5,8 @@ import lang::java::m3::Core;
 import lang::java::m3::AST;
 
 import Metrics::Scores;
-
+import Utils::MethodUtils;
+import List;
 /*
  * Cyclomatic complexity for a single unit (method)
  */
@@ -33,6 +34,28 @@ public int getCyclomaticComplexity(Statement implementation) {
 	}
 	
 	return cyclomaticComplexity;
+}
+
+public int getCyclomaticComplexity(loc project) {
+	list[Statement] methodStatements = getProjectMethodsStatements(project);
+	return sum([getCyclomaticComplexity(statement) | statement <- methodStatements]);
+}
+
+public map[str path, map[loc location, int cyclomaticComplexity] methods] getCyclomaticComplexityPerFile(loc project) {
+	map[str path, map[loc location, int cyclomaticComplexity] methods] cyclomaticComplexityPerFile = ();
+	
+	list[Statement] methodStatements = getProjectMethodsStatements(project);
+	
+	for (methodStatement <- methodStatements) {
+ 		int cyclomaticComplexityMethod = getCyclomaticComplexity(methodStatement);
+ 		if (methodStatement.src.path notin cyclomaticComplexityPerFile) {
+ 			cyclomaticComplexityPerFile[methodStatement.src.path] = ();
+ 		}
+ 		
+	 	cyclomaticComplexityPerFile[methodStatement.src.path][methodStatement.src] = cyclomaticComplexityMethod;
+	}
+	
+	return cyclomaticComplexityPerFile;
 }
 
 public RiskLevel getRiskLevelCyclomaticComplexity(Statement implementation) {

@@ -19,10 +19,14 @@ import Utils::LineUtils;
 * returns the number of duplicated lines for a project
 */
 public int numberOfDuplicatedLinesForProject(loc project) {
-	return numberOfDuplicatedLines(sanitizedLinesOfCodePerFile(project));
+	return sum([lineCount | <_, lineCount> <- numberOfDuplicatedLinesPerFile(sanitizedLinesOfCodePerFile(project))]);
 }
 
-public int numberOfDuplicatedLines(lrel[loc, list[str]] linesOfCodePerFile) {
+public rel[str path, int lineCount] numberOfDuplicatedLinesPerFile(loc project) {
+	return numberOfDuplicatedLinesPerFile(sanitizedLinesOfCodePerFile(project));
+}
+
+public rel[str path, int lineCount] numberOfDuplicatedLinesPerFile(lrel[loc, list[str]] linesOfCodePerFile) {
 	map[str, rel[loc location, int offset]] occurrencesPerFile = mapOccurrencesPerFile(linesOfCodePerFile);
 	
 	rel[loc location, int offset] duplicates = {
@@ -32,7 +36,7 @@ public int numberOfDuplicatedLines(lrel[loc, list[str]] linesOfCodePerFile) {
 			locationAndOffsets <- occurrencesPerFile[codeBlock]			
 	};	
 	
-	return calculateDuplicates(mapDuplicatesPerFile(duplicates));
+	return numberOfDuplicatedLinesPerFile(mapDuplicatesPerFile(duplicates));
 }
 
 private lrel[loc, list[str]] sanitizedLinesOfCodePerFile(loc project) {
@@ -72,10 +76,11 @@ private map[loc location, set[int] offsets] mapDuplicatesPerFile(rel[loc locatio
 	return duplicatesPerFile;
 }
 
-private int calculateDuplicates(map[loc location, set[int] offsets] duplicatesPerFile)
+private rel[str path, int lineCount] numberOfDuplicatedLinesPerFile(map[loc location, set[int] offsets] duplicatesPerFile)
 {
-	int numberOfDuplicates = 0;
+	rel[str path, int metricValue] perFile = {};
 	for (loc file <- duplicatesPerFile) {
+	    int numberOfDuplicates = 0;
 		list[int] offsetsForFile = sort(duplicatesPerFile[file]);
 		for (int i <- [0..size(offsetsForFile)]) {
 			int offset = offsetsForFile[i];
@@ -87,8 +92,9 @@ private int calculateDuplicates(map[loc location, set[int] offsets] duplicatesPe
 				numberOfDuplicates += codeBlockSize;
 			}
 		}
+		perFile += <file.path, numberOfDuplicates>;
 	}
-	return numberOfDuplicates;
+	return perFile;
 }
 
 public Ranking getDuplicationRanking(num density) {
