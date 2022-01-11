@@ -41,7 +41,7 @@ public int getCyclomaticComplexity(loc project) {
 	return sum([getCyclomaticComplexity(statement) | statement <- methodStatements]);
 }
 
-public map[str path, map[loc location, int lineCount] methods] getCyclomaticComplexityPerFile(loc project) {
+public map[str path, map[loc location, int cyclomaticComplexity] methods] getCyclomaticComplexityPerFile(loc project) {
 	map[str path, map[loc location, int cyclomaticComplexity] methods] cyclomaticComplexityPerFile = ();
 	
 	list[Statement] methodStatements = getProjectMethodsStatements(project);
