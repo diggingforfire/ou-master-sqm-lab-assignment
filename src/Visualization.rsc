@@ -26,12 +26,12 @@ public void Visualise() {
  		
 	bool sortFileByMetricValue(MethodsByFile a, MethodsByFile b){ return a.metricValue > b.metricValue; }
 	bool sortMethodByMetricValue(MetricsByMethod a, MetricsByMethod b){ return a.metricValue > b.metricValue; }
-	for (lineCountForFile <- sort(metrics.lineCountByFile, sortFileByMetricValue)) {
-		tmpPath = lineCountForFile.path; // prevent closure capturing binding to variable instead of value
-		textFigure = text("  \u2022 <tmpPath> (<lineCountForFile.metricValue>)", left(), font("Consolas"), fontSize(8), mouseOver(text("hi")), onMouseDown(bool (int butnr, map[KeyModifier,bool] modifiers) { edit(|project://smallsql0.21_src/<tmpPath>|); return true;} ));
+	for (complexityForFile <- sort(metrics.complexityPerFile, sortFileByMetricValue)) {
+		tmpPath = complexityForFile.path; // prevent closure capturing binding to variable instead of value
+		textFigure = text("  \u2022 <tmpPath> (<complexityForFile.metricValue>)", left(), font("Consolas"), fontSize(8), onMouseDown(bool (int butnr, map[KeyModifier,bool] modifiers) { edit(|project://smallsql0.21_src/<tmpPath>|); return true;} ));
  		rows += [textFigure];
  		
- 		for (method <- sort(lineCountForFile.methods, sortMethodByMetricValue)) {		
+ 		for (method <- sort(complexityForFile.methods, sortMethodByMetricValue)) {		
  			loc editableLocation = convertToEditableLocation(method.location);
  			
  			methodNames = [ methodName | <methodStatement, methodName> <- methodStatements, methodStatement.src == editableLocation];
