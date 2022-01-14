@@ -70,7 +70,7 @@ private Figure getPathFigure(loc project, str path, num metricValue) {
 }
 
 private Figure getMethodFigure(str methodName, num metricValue, loc location) {
-	methodClicked = onMouseDown(bool (int butnr, map[KeyModifier,bool] modifiers) { edit(editableLocation); return true;} );
+	methodClicked = onMouseDown(bool (int butnr, map[KeyModifier,bool] modifiers) { edit(location); return true;} );
 	return text("    <whiteBullet> <methodName> (<metricValue>)", left(), font("Consolas"), fontSize(8), methodClicked);
 }
 
@@ -81,7 +81,7 @@ private Figure getShowMoreMethodsFigure(str path, int methodsRemaining) {
 		return true;
 	} );
 	
-	return text("      Show <itemGroupCount> more (<methodsRemaining> remaining)", fontBold(true), fontItalic(true), left(), fontColor("Peru"), font("Consolas"), fontSize(8), methodClicked);
+	return text("      Show <itemGroupCount> more methods (<methodsRemaining> remaining)", fontBold(true), fontItalic(true), left(), fontColor("Peru"), font("Consolas"), fontSize(8), methodClicked);
 }
 
 private Figure getShowMoreFilesFigure(int filesRemaining) {
@@ -90,7 +90,7 @@ private Figure getShowMoreFilesFigure(int filesRemaining) {
 		return true;
 	});
 	
-	return text("    Show <itemGroupCount> more (<filesRemaining> remaining)", fontBold(true), fontItalic(true), left(), fontColor("Peru"), font("Consolas"), fontSize(8), fileClicked);
+	return text("    Show <itemGroupCount> more files (<filesRemaining> remaining)", fontBold(true), fontItalic(true), left(), fontColor("Peru"), font("Consolas"), fontSize(8), fileClicked);
 }
 
 private Figure indentedTree(loc project, str projectName, set[MethodsByFile] metric, str projectLevelMetricLabel, num projectLevelMetric) {
