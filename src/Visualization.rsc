@@ -1,15 +1,10 @@
 module Visualization
 
-import analysis::graphs::Graph;
-import Relation;
-import vis::Figure;
-import vis::Render;
 import List;
 import ListRelation;
 import Set;
 import util::Math;
 import IO;
-import vis::KeySym;
 import Importer;
 import Exporter;
 import util::Editors;
@@ -18,12 +13,15 @@ import lang::java::m3::AST;
 import String;
 import Utils::MethodUtils;
 import ValueIO;
+import vis::Figure;
+import vis::KeySym;
+import vis::Render;
 
 private str regularBullet = "\u2022";
 private str whiteBullet = "\u25E6";
 private int itemGroupCount = 5;
 
-private map[MethodsByFile methods, int expansions] fileExpansionCount = ();
+private int fileExpansionCount = 1;
 private map[str path, int expansions] methodExpansionCount = ();
 private map[str path, bool expanded] fileExpandedStates = ();
 
@@ -51,6 +49,50 @@ private bool isExpanded(str path) {
 	return (path notin fileExpandedStates) ? false : fileExpandedStates[path];
 }
 
+private Figure getExpandSignFigure(str path) {
+	expandClicked = onMouseDown(bool (_, _) { 
+		println("expand clicked");
+		collapseOrExpand(path);
+		return true;
+	} );
+	
+	return text("  <getExpandCollapseSign(path)>", font("Consolas"), fontSize(8), expandClicked);
+}
+
+private void collapseOrExpand(str path) {
+	if (path notin fileExpandedStates) fileExpandedStates += (path: false);
+	fileExpandedStates[path] = !fileExpandedStates[path];
+}
+
+private Figure getPathFigure(loc project, str path, num metricValue) {
+	pathClicked = onMouseDown(bool (_, _) { edit(project + path); return true; });
+	return text(" <path> (<metricValue>)", font("Consolas"), fontSize(8), pathClicked);
+}
+
+private Figure getMethodFigure(str methodName, num metricValue, loc location) {
+	methodClicked = onMouseDown(bool (int butnr, map[KeyModifier,bool] modifiers) { edit(editableLocation); return true;} );
+	return text("    <whiteBullet> <methodName> (<metricValue>)", left(), font("Consolas"), fontSize(8), methodClicked);
+}
+
+private Figure getShowMoreMethodsFigure(str path, int methodsRemaining) {
+	methodClicked = onMouseDown(bool (_, _) { 	
+		if (path notin methodExpansionCount) methodExpansionCount += (path: 1);
+		methodExpansionCount[path] = methodExpansionCount[path] + 1;
+		return true;
+	} );
+	
+	return text("      Show <itemGroupCount> more (<methodsRemaining> remaining)", fontBold(true), fontItalic(true), left(), fontColor("Peru"), font("Consolas"), fontSize(8), methodClicked);
+}
+
+private Figure getShowMoreFilesFigure(int filesRemaining) {
+	fileClicked = onMouseDown(bool (_, _) {
+		fileExpansionCount = fileExpansionCount + 1;
+		return true;
+	});
+	
+	return text("    Show <itemGroupCount> more (<filesRemaining> remaining)", fontBold(true), fontItalic(true), left(), fontColor("Peru"), font("Consolas"), fontSize(8), fileClicked);
+}
+
 private Figure indentedTree(loc project, str projectName, set[MethodsByFile] metric, str projectLevelMetricLabel, num projectLevelMetric) {
 	list[Figure] rows = [text("<regularBullet> <projectName> (<projectLevelMetricLabel>: <projectLevelMetric>)", left(), font("Consolas"), fontSize(8))];;
 	lrel[Statement, str] methodStatements = getProjectMethodsStatementsWithName(project);
@@ -58,28 +100,25 @@ private Figure indentedTree(loc project, str projectName, set[MethodsByFile] met
 	bool sortFileByMetricValue(MethodsByFile a, MethodsByFile b){ return a.metricValue > b.metricValue; }
 	bool sortMethodByMetricValue(MetricsByMethod a, MetricsByMethod b){ return a.metricValue > b.metricValue; }
 
-	for (metricForFile <- take(3, sort(metric, sortFileByMetricValue))) {
-		println(methodExpansionCount);
+	int showFileCount = fileExpansionCount * itemGroupCount;
+	list[MethodsByFile] files = take(showFileCount, sort(metric, sortFileByMetricValue));
+	
+	// expand the first file by default
+	if (files[0].path notin fileExpandedStates) fileExpandedStates += (files[0].path: true);
+	
+	for (metricForFile <- files) {	
+		// prevent closure capturing binding to variable instead of value
+		tmpPath = metricForFile.path; 
 		
-		tmpPath = metricForFile.path; // prevent closure capturing binding to variable instead of value
-		textFigure = text(" <tmpPath> (<metricForFile.metricValue>)",  font("Consolas"), fontSize(8), onMouseDown(bool (int butnr, map[KeyModifier,bool] modifiers) { edit(project + tmpPath); return true;} ));
- 		expandSign = text("  <getExpandCollapseSign(tmpPath)>", font("Consolas"), fontSize(8), onMouseDown(bool (int butnr, map[KeyModifier,bool] modifiers) { 
- 		
- 			if (tmpPath notin fileExpandedStates) {
-				fileExpandedStates += (tmpPath: false);
-			}
-				
-			fileExpandedStates[tmpPath] = !fileExpandedStates[tmpPath];
- 			return true;
- 		} ));
- 		
- 		rows += [hcat([expandSign, textFigure], std(left()), resizable(false))];
+		expandSignFigure = getExpandSignFigure(tmpPath);
+		pathFigure = getPathFigure(project, tmpPath, metricForFile.metricValue);
+ 		rows += [hcat([expandSignFigure, pathFigure], std(left()), resizable(false))];
  		
  		if (isExpanded(tmpPath)) {
-	 		int methodCount = (tmpPath in methodExpansionCount) ? methodExpansionCount[tmpPath] * itemGroupCount : itemGroupCount;
-	 		for (method <- take(methodCount, sort(metricForFile.methods, sortMethodByMetricValue))) {		
-	 			loc editableLocation = convertToEditableLocation(method.location);
-	 			
+	 		int showMethodCount = (tmpPath in methodExpansionCount) ? methodExpansionCount[tmpPath] * itemGroupCount : itemGroupCount;
+	 		
+	 		for (method <- take(showMethodCount, sort(metricForFile.methods, sortMethodByMetricValue))) {		
+	 			loc editableLocation = convertToEditableLocation(method.location); 			
 	 			methodNames = [ methodName | <methodStatement, methodName> <- methodStatements, methodStatement.src == editableLocation];
 	 			
 	 			if(isEmpty(methodNames)) {
@@ -87,25 +126,16 @@ private Figure indentedTree(loc project, str projectName, set[MethodsByFile] met
 	 				continue;
 	 			}
 	 			
-	 			rows += [text("    <whiteBullet> <methodNames[0]> (<method.metricValue>)", left(), font("Consolas"), fontSize(8), onMouseDown(bool (int butnr, map[KeyModifier,bool] modifiers) { edit(editableLocation); return true;} ))];	
+	 			rows += [getMethodFigure(methodNames[0], method.metricValue, editableLocation)];	
 			}
 			
-			int methodsRemaining = size(metricForFile.methods) - methodCount;		
-			if (methodsRemaining > 0) {
-				showMoreMethodsText = text("      Show <itemGroupCount> more (<methodsRemaining> remaining)", fontBold(true), fontItalic(true), left(), fontColor("Peru"), font("Consolas"), fontSize(8), onMouseDown(bool (int butnr, map[KeyModifier,bool] modifiers) { 
-				
-					if (tmpPath notin methodExpansionCount) {
-						methodExpansionCount += (tmpPath: 1);
-					}
-					
-					methodExpansionCount[tmpPath] = methodExpansionCount[tmpPath] + 1;
-					return true;
-				} ));
-				
-				rows += [showMoreMethodsText];
-			}
+			int methodsRemaining = size(metricForFile.methods) - showMethodCount;		
+			if (methodsRemaining > 0) rows += [getShowMoreMethodsFigure(tmpPath, methodsRemaining)];		
  		}	
-	} 
+	}
 	
+	int filesRemaining = size(metric) - showFileCount;
+	if (filesRemaining > 0)	rows += [getShowMoreFilesFigure(filesRemaining)];
+		
 	return vcat(rows, vgap(5), halign(0.1), vresizable(false), std(top()));
 }
