@@ -57,13 +57,15 @@ public map[str path, map[loc location, int cyclomaticComplexity] methods] getCyc
 	
 	return cyclomaticComplexityPerFile;
 }
-
-public RiskLevel getRiskLevelCyclomaticComplexity(Statement implementation) {
-	int cyclomaticComplexity = getCyclomaticComplexity(implementation);
-
+public RiskLevel getRiskLevelCyclomaticComplexity(int cyclomaticComplexity) {
 	if (cyclomaticComplexity > 50) return VeryHigh();
 	if (cyclomaticComplexity >= 21) return High();
 	if (cyclomaticComplexity >= 11) return Moderate();
  	
  	return Simple();
+}
+
+public RiskLevel getRiskLevelCyclomaticComplexity(Statement implementation) {
+	int cyclomaticComplexity = getCyclomaticComplexity(implementation);
+	return getRiskLevelCyclomaticComplexity(cyclomaticComplexity);
  }

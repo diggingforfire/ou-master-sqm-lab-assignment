@@ -10,15 +10,18 @@ import Exporter;
 import util::Editors;
 import lang::java::m3::Core;
 import lang::java::m3::AST;
+import Metrics::Complexity;
+import Metrics::Scores;
 import String;
 import Utils::MethodUtils;
 import ValueIO;
 import vis::Figure;
 import vis::KeySym;
 import vis::Render;
+import Metrics::Scores;
 
 private str regularBullet = "\u2022";
-private str whiteBullet = "\u25E6";
+private str openBullet = "\u25E6";
 private int itemGroupCount = 5;
 
 private int fileExpansionCount = 1;
@@ -32,10 +35,10 @@ public void Visualise() {
 private void Visualise(loc project, str projectName) {
 	Metrics metrics = importProjectMetrics(project, projectName);
 	
-	//rowsCyclomaticComplexity = [text("<regularBullet> <projectName> (cyclomatic complexity: <metrics.projectCyclomaticComplexity>)", left(), font("Consolas"), fontSize(8))];
+	//rowsCyclomaticComplexity = [text("<regularBullet> <projectName> (cyclomatic complexity: <metrics.projectCyclomaticComplexity>)", left(), font("Consolas"), fontSize(9))];
 	//rowsCyclomaticComplexity += generateRows(project, metrics.complexityPerFile);
 	
-	//rowslineCount = [text("<regularBullet> <projectName> (line count: <metrics.projectLineCount>)", left(), font("Consolas"), fontSize(8))];
+	//rowslineCount = [text("<regularBullet> <projectName> (line count: <metrics.projectLineCount>)", left(), font("Consolas"), fontSize(9))];
 	//rowslineCount += generateRows(project, metrics.lineCountByFile);
 	
 	render(projectName, computeFigure(Figure() { return indentedTree(project, projectName, metrics.complexityPerFile, "Cyclomatic complexity", metrics.projectCyclomaticComplexity); }  ));
@@ -51,12 +54,11 @@ private bool isExpanded(str path) {
 
 private Figure getExpandSignFigure(str path) {
 	expandClicked = onMouseDown(bool (_, _) { 
-		println("expand clicked");
 		collapseOrExpand(path);
 		return true;
 	} );
 	
-	return text("  <getExpandCollapseSign(path)>", font("Consolas"), fontSize(8), expandClicked);
+	return text("  <getExpandCollapseSign(path)>", font("Consolas"), fontSize(9), expandClicked);
 }
 
 private void collapseOrExpand(str path) {
@@ -66,12 +68,16 @@ private void collapseOrExpand(str path) {
 
 private Figure getPathFigure(loc project, str path, num metricValue) {
 	pathClicked = onMouseDown(bool (_, _) { edit(project + path); return true; });
-	return text(" <path> (<metricValue>)", font("Consolas"), fontSize(8), pathClicked);
+	return text(" <path> (<metricValue>)", font("Consolas"), fontSize(9), pathClicked);
 }
 
 private Figure getMethodFigure(str methodName, num metricValue, loc location) {
 	methodClicked = onMouseDown(bool (int butnr, map[KeyModifier,bool] modifiers) { edit(location); return true;} );
-	return text("    <whiteBullet> <methodName> (<metricValue>)", left(), font("Consolas"), fontSize(8), methodClicked);
+	return text(" <methodName> (<metricValue>)", left(), font("Consolas"), fontSize(9), methodClicked);
+}
+
+private Figure getMethodBulletFigure(int cyclomaticComplexity) {
+	return text("    <regularBullet>", left(), font("Consolas"), fontSize(9), fontColor(getColorForCyclomaticComplexity(cyclomaticComplexity)));
 }
 
 private Figure getShowMoreMethodsFigure(str path, int methodsRemaining) {
@@ -81,7 +87,7 @@ private Figure getShowMoreMethodsFigure(str path, int methodsRemaining) {
 		return true;
 	} );
 	
-	return text("      Show <itemGroupCount> more methods (<methodsRemaining> remaining)", fontBold(true), fontItalic(true), left(), fontColor("Peru"), font("Consolas"), fontSize(8), methodClicked);
+	return text("      Show <itemGroupCount> more methods (<methodsRemaining> remaining)", fontBold(true), fontItalic(true), left(), fontColor("Peru"), font("Consolas"), fontSize(9), methodClicked);
 }
 
 private Figure getShowMoreFilesFigure(int filesRemaining) {
@@ -90,15 +96,23 @@ private Figure getShowMoreFilesFigure(int filesRemaining) {
 		return true;
 	});
 	
-	return text("    Show <itemGroupCount> more files (<filesRemaining> remaining)", fontBold(true), fontItalic(true), left(), fontColor("Peru"), font("Consolas"), fontSize(8), fileClicked);
+	return text("    Show <itemGroupCount> more files (<filesRemaining> remaining)", fontBold(true), fontItalic(true), left(), fontColor("Peru"), font("Consolas"), fontSize(9), fileClicked);
+}
+
+private str getColorForCyclomaticComplexity(int cyclomaticComplexity) {
+	RiskLevel riskLevel = getRiskLevelCyclomaticComplexity(cyclomaticComplexity);
+	if (riskLevel == VeryHigh()) return "red";
+	if (riskLevel == High()) return "orange";
+	if (riskLevel == Moderate()) return "yellow";
+	return "green";
 }
 
 private Figure indentedTree(loc project, str projectName, set[MethodsByFile] metric, str projectLevelMetricLabel, num projectLevelMetric) {
-	list[Figure] rows = [text("<regularBullet> <projectName> (<projectLevelMetricLabel>: <projectLevelMetric>)", left(), font("Consolas"), fontSize(8))];;
+	list[Figure] rows = [text("<regularBullet> <projectName> (<projectLevelMetricLabel>: <projectLevelMetric>)", left(), font("Consolas"), fontSize(9))];;
 	lrel[Statement, str] methodStatements = getProjectMethodsStatementsWithName(project);
  		
-	bool sortFileByMetricValue(MethodsByFile a, MethodsByFile b){ return a.metricValue > b.metricValue; }
-	bool sortMethodByMetricValue(MetricsByMethod a, MetricsByMethod b){ return a.metricValue > b.metricValue; }
+	bool sortFileByMetricValue(MethodsByFile a, MethodsByFile b) { return a.metricValue > b.metricValue; }
+	bool sortMethodByMetricValue(MetricsByMethod a, MetricsByMethod b) { return a.metricValue > b.metricValue; }
 
 	int showFileCount = fileExpansionCount * itemGroupCount;
 	list[MethodsByFile] files = take(showFileCount, sort(metric, sortFileByMetricValue));
@@ -126,7 +140,10 @@ private Figure indentedTree(loc project, str projectName, set[MethodsByFile] met
 	 				continue;
 	 			}
 	 			
-	 			rows += [getMethodFigure(methodNames[0], method.metricValue, editableLocation)];	
+	 			bulletFigure = getMethodBulletFigure(method.metricValue);
+	 			methodFigure = getMethodFigure(methodNames[0], method.metricValue, editableLocation);
+	 			
+	 			rows += [hcat([bulletFigure, methodFigure], std(left()), resizable(false))];	
 			}
 			
 			int methodsRemaining = size(metricForFile.methods) - showMethodCount;		
@@ -137,5 +154,5 @@ private Figure indentedTree(loc project, str projectName, set[MethodsByFile] met
 	int filesRemaining = size(metric) - showFileCount;
 	if (filesRemaining > 0)	rows += [getShowMoreFilesFigure(filesRemaining)];
 		
-	return vcat(rows, vgap(5), halign(0.1), vresizable(false), std(top()));
+	return vcat(rows, vgap(5), halign(0.1), vresizable(false), std(center()));
 }
