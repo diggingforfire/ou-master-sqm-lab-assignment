@@ -9,11 +9,12 @@ import Importer;
 import Exporter;
 
 public void visualiseGraphs() {
-	visualiseGraph(|project://smallsql0.21_src|, "smallsql");
+	visualiseGraph("smallsql");
+	visualiseGraph("hsqldb");
 }
 
-private void visualiseGraph(loc project, str projectName) {
-	Metrics metrics = importProjectMetrics(project, projectName);
+private void visualiseGraph(str projectName) {
+	Metrics metrics = importProjectMetrics(projectName);
 	
 	bool openTree (int _, map[KeyModifier,bool] _) { 
 		render("tree", box(text("tree")));
