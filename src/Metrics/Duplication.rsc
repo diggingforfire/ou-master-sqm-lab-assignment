@@ -18,8 +18,15 @@ import Utils::LineUtils;
 /*
 * returns the number of duplicated lines for a project
 */
-public int numberOfDuplicatedLinesForProject(loc project) {
-	return sum([lineCount | <_, lineCount> <- numberOfDuplicatedLinesPerFile(sanitizedLinesOfCodePerFile(project))]);
+public num duplicationDensityForProject(loc project, num numberOfLinesOfCode) {
+	return duplicatedLinesDensity(
+		numberOfLinesOfCode,
+		sum([lineCount | <_, lineCount> <- numberOfDuplicatedLinesPerFile(sanitizedLinesOfCodePerFile(project))])
+		);
+}
+
+private num duplicatedLinesDensity(num numberOfLinesOfCode, num numberOfDuplicatedLines) {
+	return (numberOfDuplicatedLines / numberOfLinesOfCode) * 100;
 }
 
 public rel[str path, int lineCount] numberOfDuplicatedLinesPerFile(loc project) {
