@@ -1,4 +1,4 @@
-module Visualization
+module Visualisation::IndentedTree
 
 import List;
 import ListRelation;
@@ -27,20 +27,9 @@ private int fileExpansionCount = 1;
 private map[str path, int expansions] methodExpansionCount = ();
 private map[str path, bool expanded] fileExpandedStates = ();
 
-public void visualise() {
-	// choose following parameters based on previous navigation
-	loc project = |project://smallsql0.21_src|;
-	str projectName = "smallsql";
-	
-	Metrics metrics = importProjectMetrics(project, projectName);
-	metricPerFile = metrics.complexityPerFile;
-	str metricLabel = "Cyclomatic complexity";
-	num projectLevelMetric = metrics.projectCyclomaticComplexity;
-	
-	renderTree(project, projectName, metricPerFile, metricLabel, projectLevelMetric);
-}
-
-private void renderTree(loc project, str projectName, set[MethodsByFile] metric, str metricLabel, num projectLevelMetric) {
+public void visualiseTree(loc project, str projectName, str metricLabel, set[MethodsByFile] metric, num projectLevelMetric) {
+	methodExpansionCount = ();
+	fileExpandedStates = ();
 	render(projectName, computeFigure(Figure() { return indentedTree(project, projectName, metric, metricLabel, projectLevelMetric); }  ));
 }
 
