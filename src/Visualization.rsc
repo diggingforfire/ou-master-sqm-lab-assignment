@@ -21,27 +21,27 @@ import vis::Render;
 import Metrics::Scores;
 
 private str regularBullet = "\u2022";
-private str openBullet = "\u25E6";
 private int itemGroupCount = 5;
 
 private int fileExpansionCount = 1;
 private map[str path, int expansions] methodExpansionCount = ();
 private map[str path, bool expanded] fileExpandedStates = ();
 
-public void Visualise() {
-	Visualise(|project://smallsql0.21_src|, "smallsql");
+public void visualise() {
+	// choose following parameters based on previous navigation
+	loc project = |project://smallsql0.21_src|;
+	str projectName = "smallsql";
+	
+	Metrics metrics = importProjectMetrics(project, projectName);
+	metricPerFile = metrics.complexityPerFile;
+	str metricLabel = "Cyclomatic complexity";
+	num projectLevelMetric = metrics.projectCyclomaticComplexity;
+	
+	renderTree(project, projectName, metricPerFile, metricLabel, projectLevelMetric);
 }
 
-private void Visualise(loc project, str projectName) {
-	Metrics metrics = importProjectMetrics(project, projectName);
-	
-	//rowsCyclomaticComplexity = [text("<regularBullet> <projectName> (cyclomatic complexity: <metrics.projectCyclomaticComplexity>)", left(), font("Consolas"), fontSize(9))];
-	//rowsCyclomaticComplexity += generateRows(project, metrics.complexityPerFile);
-	
-	//rowslineCount = [text("<regularBullet> <projectName> (line count: <metrics.projectLineCount>)", left(), font("Consolas"), fontSize(9))];
-	//rowslineCount += generateRows(project, metrics.lineCountByFile);
-	
-	render(projectName, computeFigure(Figure() { return indentedTree(project, projectName, metrics.complexityPerFile, "Cyclomatic complexity", metrics.projectCyclomaticComplexity); }  ));
+private void renderTree(loc project, str projectName, set[MethodsByFile] metric, str metricLabel, num projectLevelMetric) {
+	render(projectName, computeFigure(Figure() { return indentedTree(project, projectName, metric, metricLabel, projectLevelMetric); }  ));
 }
 
 private str getExpandCollapseSign(str path) {
@@ -77,7 +77,7 @@ private Figure getMethodFigure(str methodName, num metricValue, loc location) {
 }
 
 private Figure getMethodBulletFigure(int cyclomaticComplexity) {
-	return text("    <regularBullet>", left(), font("Consolas"), fontSize(9), fontColor(getColorForCyclomaticComplexity(cyclomaticComplexity)));
+	return text("    <regularBullet>", left(), font("Consolas"), fontSize(12), fontColor(getColorForCyclomaticComplexity(cyclomaticComplexity)));
 }
 
 private Figure getShowMoreMethodsFigure(str path, int methodsRemaining) {
