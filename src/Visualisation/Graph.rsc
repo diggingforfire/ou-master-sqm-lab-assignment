@@ -1,4 +1,4 @@
-module Visualization::Graph
+module Visualisation::Graph
 
 import vis::Figure;
 import vis::Render;
@@ -10,7 +10,7 @@ import Exporter;
 
 public void visualiseGraphs() {
 	visualiseGraph("smallsql");
-	visualiseGraph("hsqldb");
+	visualiseGraph("org.hsqldb");
 }
 
 private void visualiseGraph(str projectName) {

@@ -31,7 +31,7 @@ data Metrics = metrics(
 
 public void exportProjects() {
 	exportProjectMetrics(|project://smallsql0.21_src/|, "smallsql");
-	exportProjectMetrics(|project://hsqldb/|, "hsqldb");
+	exportProjectMetrics(|project://hsqldb/|, "org.hsqldb");
 }
 
 public void exportProjectMetrics(loc project, str projectName) {
