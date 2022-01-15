@@ -1,4 +1,4 @@
-module Exporter
+module InputOutput::Exporter
 
 import lang::json::IO;
 import List;
