@@ -71,3 +71,7 @@ public Ranking getCoverageRanking(num percentage) {
 	if(percentage < 95) return High();
 	return Highest();
 }
+
+public num testCoveragePercentage(num coveredMethods, num allMethods) {
+	return (coveredMethods / allMethods) * 100;
+}

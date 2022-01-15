@@ -19,7 +19,7 @@ public str filterComments(str file) {
 		*/
 		case /\/\*.*?\*\//s => ""
 		/*
-		* empty string or starts with (^) space, tab or line break (\s) till the end ($)
+		* matches the character / followed by another / followed by as many / mathes it can find (greedy) 
 		*/
 		case /\/\/.*/ => ""
 	}
