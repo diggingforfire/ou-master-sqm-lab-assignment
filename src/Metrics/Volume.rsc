@@ -70,9 +70,9 @@ private list[str] linesOfCode(list[str] codeFiles) {
 }
 
 public Ranking getVolumeRanking(int lineCount) {
-	if(lineCount <= 66) return Highest();
-	if(lineCount <= 246) return High();
-	if(lineCount <= 665) return Medium();
-	if(lineCount <= 1310) return Low();
+	if(lineCount <= 66000) return Highest();
+	if(lineCount <= 246000) return High();
+	if(lineCount <= 665000) return Medium();
+	if(lineCount <= 1310000) return Low();
 	return Lowest();
 }
