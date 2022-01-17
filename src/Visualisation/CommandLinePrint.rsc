@@ -1,4 +1,4 @@
-module Visualization::CommandLinePrint
+module Visualisation::CommandLinePrint
 
 import IO;
 import util::Math;
@@ -27,8 +27,8 @@ private void analyseProject(loc project, str projectName) {
 	list[Statement] methods = getProjectMethodsStatements(project);
 	println("number of units: <size(methods)>");
 	
-	map[RiskLevel, tuple[int cyclomaticComplexityPercentage, int unitSizeComplexityPercentage]] maintainability = unitMaintainability(projectLineCount, methods);
-	map[RiskLevel, int] complexity = (risk:maintainability[risk].cyclomaticComplexityPercentage | risk <- maintainability);
+	map[RiskLevel, tuple[num cyclomaticComplexityPercentage, num unitSizeComplexityPercentage]] maintainability = unitMaintainability(methods);
+	map[RiskLevel, num] complexity = (risk:maintainability[risk].cyclomaticComplexityPercentage | risk <- maintainability);
 	printComplexities(complexity);
 	
 	num duplicationDensity = duplicationDensityForProject(project, projectLineCount);	
@@ -64,10 +64,10 @@ private void analyseProject(loc project, str projectName) {
 	println();
 }
 
-private void printComplexities(map[RiskLevel, int] complexity) {
+private void printComplexities(map[RiskLevel, num] complexity) {
 	println("unit complexity:");
-	println(" * simple: <complexity[Simple()]>%");
-	println(" * moderate: <complexity[Moderate()]>%");
-	println(" * high: <complexity[High()]>%");
-	println(" * very high: <complexity[VeryHigh()]>%");
+	println(" * simple: <round(complexity[Simple()], 0.1)>%");
+	println(" * moderate: <round(complexity[Moderate()], 0.1)>%");
+	println(" * high: <round(complexity[High()], 0.1)>%");
+	println(" * very high: <round(complexity[VeryHigh()], 0.1)>%");
 }

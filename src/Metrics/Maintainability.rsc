@@ -13,7 +13,7 @@ import Utils::MethodUtils;
  /*
  * Unit complexity rating based on risk levels
  */
-public Ranking getMaintainabilityRanking(map[RiskLevel, int] unitComplexity) {
+public Ranking getMaintainabilityRanking(map[RiskLevel, num] unitComplexity) {
 	if (unitComplexity[VeryHigh()] == 0 && unitComplexity[High()] == 0 && unitComplexity[Moderate()] <= 25) return Highest();
 	if (unitComplexity[VeryHigh()] == 0 && unitComplexity[High()] <= 5 && unitComplexity[Moderate()] <= 30) return High();
 	if (unitComplexity[VeryHigh()] == 0 && unitComplexity[High()] <= 10 && unitComplexity[Moderate()] <= 40) return Medium();
@@ -25,13 +25,16 @@ public Ranking getMaintainabilityRanking(map[RiskLevel, int] unitComplexity) {
 /*
  * Relative unit maintainability scores where risk level percentages indicate the amount of unic LOC that falls within that category
  */
-public map[RiskLevel, tuple[int cyclomaticComplexityPercentage, int unitSizeComplexityPercentage]] unitMaintainability(num projectLineCount, list[Statement] methodStatements) {
+public map[RiskLevel, tuple[num cyclomaticComplexityPercentage, num unitSizeComplexityPercentage]] unitMaintainability(list[Statement] methodStatements) {
 	
 	map[RiskLevel, tuple[int lineCountCyclomaticComplexity, int lineCountUnitSizeComplexity]] riskLevelLineCount = (Simple(): <0,0>, Moderate(): <0,0>, High(): <0,0>, VeryHigh(): <0,0>);
-		
+	
+	int methodLineCountSum = 0;
+	
  	for (methodStatement <- methodStatements) {
  		str sourceText = readFile(methodStatement.src);
  		int lineCountMethod = getLineCount(sourceText);
+ 		methodLineCountSum += lineCountMethod;
  		
  		RiskLevel cyclomaticComplexityrisk = getRiskLevelCyclomaticComplexity(methodStatement);
 		riskLevelLineCount[cyclomaticComplexityrisk].lineCountCyclomaticComplexity += lineCountMethod;
@@ -41,11 +44,11 @@ public map[RiskLevel, tuple[int cyclomaticComplexityPercentage, int unitSizeComp
  	}
 
  	return ( 
- 		risk : <PercentageOf(riskLevelLineCount[risk].lineCountCyclomaticComplexity, projectLineCount), PercentageOf(riskLevelLineCount[risk].lineCountUnitSizeComplexity, projectLineCount)> | 
+ 		risk : <percentageOf(riskLevelLineCount[risk].lineCountCyclomaticComplexity, methodLineCountSum), percentageOf(riskLevelLineCount[risk].lineCountUnitSizeComplexity, methodLineCountSum)> | 
  		risk <- riskLevelLineCount
  		);
 }
 
-private int PercentageOf(num lineCount, num projectLineCount) {
-	return floor((lineCount / projectLineCount) * 100);
+private num percentageOf(num lineCount, num methodLineCountSum) {
+	return (lineCount / methodLineCountSum) * 100;
 }
