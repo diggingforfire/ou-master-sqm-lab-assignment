@@ -1,4 +1,4 @@
-module Visualization::CommandLinePrint
+module Visualisation::CommandLinePrint
 
 import IO;
 import util::Math;
@@ -27,9 +27,16 @@ private void analyseProject(loc project, str projectName) {
 	list[Statement] methods = getProjectMethodsStatements(project);
 	println("number of units: <size(methods)>");
 	
-	map[RiskLevel, tuple[int cyclomaticComplexityPercentage, int unitSizeComplexityPercentage]] maintainability = unitMaintainability(projectLineCount, methods);
-	map[RiskLevel, int] complexity = (risk:maintainability[risk].cyclomaticComplexityPercentage | risk <- maintainability);
-	printComplexities(complexity);
+	map[RiskLevel, tuple[num cyclomaticComplexityPercentage, num unitSizeComplexityPercentage]] maintainability = unitMaintainability(methods);
+	
+	map[RiskLevel, num] unitSize = (risk:maintainability[risk].unitSizeComplexityPercentage | risk <- maintainability);
+	map[RiskLevel, num] unitComplexity = (risk:maintainability[risk].cyclomaticComplexityPercentage | risk <- maintainability);
+	
+	println("unit size:");
+	printUnitMetrics(unitSize);
+	
+	println("unit complexity:");
+	printUnitMetrics(unitComplexity);
 	
 	num duplicationDensity = duplicationDensityForProject(project, projectLineCount);	
 	println("duplication: <round(duplicationDensity, 0.01)>%");
@@ -43,7 +50,7 @@ private void analyseProject(loc project, str projectName) {
 	println("volume score: <rankingAsString(volumeRanking)>");
 	Ranking unitSizeRanking = getMaintainabilityRanking((risk:maintainability[risk].unitSizeComplexityPercentage | risk <- maintainability));
 	println("unit size score: <rankingAsString(unitSizeRanking)>");
-	Ranking unitComplexityRanking = getMaintainabilityRanking(complexity);
+	Ranking unitComplexityRanking = getMaintainabilityRanking(unitComplexity);
 	println("unit complexity score: <rankingAsString(unitComplexityRanking)>");
 	Ranking duplicationRanking = getDuplicationRanking(duplicationDensity);
 	println("duplication score: <rankingAsString(duplicationRanking)>");
@@ -64,10 +71,9 @@ private void analyseProject(loc project, str projectName) {
 	println();
 }
 
-private void printComplexities(map[RiskLevel, int] complexity) {
-	println("unit complexity:");
-	println(" * simple: <complexity[Simple()]>%");
-	println(" * moderate: <complexity[Moderate()]>%");
-	println(" * high: <complexity[High()]>%");
-	println(" * very high: <complexity[VeryHigh()]>%");
+private void printUnitMetrics(map[RiskLevel, num] complexity) {
+	println(" * simple: <round(complexity[Simple()], 0.1)>%");
+	println(" * moderate: <round(complexity[Moderate()], 0.1)>%");
+	println(" * high: <round(complexity[High()], 0.1)>%");
+	println(" * very high: <round(complexity[VeryHigh()], 0.1)>%");
 }
