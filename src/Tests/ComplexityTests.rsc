@@ -1,8 +1,10 @@
 module Tests::ComplexityTests
 
-import Metrics::Complexity;
 import lang::java::m3::AST;
 import List;
+
+import Metrics::Complexity;
+import Utils::MethodUtils;
 
 public test bool cyclomaticComplexity_IfThen() {
 	implementation = getMethodImplementation(|java+compilationUnit:///src/smallsql/database/Logger.java|, "println");
@@ -62,6 +64,6 @@ public test bool cyclomaticComplexity_Conditional() {
 
 // can't handle overloads (yet)
 private Statement getMethodImplementation(loc file, str method) {
-	lrel[str, Statement] ast = getFileMethodsASTs(file);
-	return top([ impl | <name, impl> <- ast, name == method ]);
+	lrel[Statement, str] ast = getProjectMethodsStatementsWithName(file);
+	return top([ impl | <impl, name> <- ast, name == method ]);
 }

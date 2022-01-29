@@ -5,8 +5,8 @@ import vis::Figure;
 import vis::Render;
 import vis::KeySym;
 import util::Editors;
-import Importer;
-import Exporter;
+import InputOutput::Importer;
+import InputOutput::Exporter;
 import Visualisation::IndentedTree;
 
 public void visualiseGraphs() {

@@ -1,5 +1,7 @@
 module Tests::LineUtilsTests
 
+import ListRelation;
+
 import Utils::LineUtils;
 
 //isEmptyOrWhiteSpaceLine tests
@@ -53,14 +55,14 @@ public test bool filterComments_SingleLineComment_In_String() {
 public test bool concatenateToCodeBlocks_givenSevenLines_createsTwoCodeBlocks() {
 	linesOfCode = ["1", "2", "3", "4", "5", "6", "7"];
 
-	codeBlocks = concatenateToCodeBlocks(linesOfCode);
+	codeBlocks = domain(concatenateToCodeBlocks(linesOfCode));
 	return codeBlocks == ["234567", "123456"];
 }
 
 public test bool concatenateToCodeBlocks_givenSixLines_createsOneCodeBlock() {
 	linesOfCode = ["1", "2", "3", "4", "5", "6"];
 
-	codeBlocks = concatenateToCodeBlocks(linesOfCode);
+	codeBlocks = domain(concatenateToCodeBlocks(linesOfCode));
 	return codeBlocks == ["123456"];
 }
 
