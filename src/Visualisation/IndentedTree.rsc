@@ -6,7 +6,7 @@ import Set;
 import util::Math;
 import IO;
 import InputOutput::Importer;
-import Exporter;
+import InputOutput::Exporter;
 import util::Editors;
 import lang::java::m3::Core;
 import lang::java::m3::AST;
