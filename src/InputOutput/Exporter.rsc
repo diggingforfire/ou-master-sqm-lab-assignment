@@ -56,8 +56,8 @@ public void exportProjectMetrics(loc project, str projectName) {
 	
 	list[Statement] methods = getProjectMethodsStatements(project);
 	
-	map[RiskLevel, tuple[int cyclomaticComplexityPercentage, int unitSizeComplexityPercentage]] maintainability = unitMaintainability(projectLineCount, methods);
-	map[RiskLevel, int] complexity = (risk:maintainability[risk].cyclomaticComplexityPercentage | risk <- maintainability);
+	map[RiskLevel, tuple[num cyclomaticComplexityPercentage, num unitSizeComplexityPercentage]] maintainability = unitMaintainability(methods);
+	map[RiskLevel, num] complexity = (risk:maintainability[risk].cyclomaticComplexityPercentage | risk <- maintainability);
 	
 	num duplicationDensity = duplicationDensityForProject(project, projectLineCount);
 	
