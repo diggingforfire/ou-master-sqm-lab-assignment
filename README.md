@@ -6,4 +6,4 @@
 - Start analysation by `analyseProjects();`
 
 ## Module design
-![Module design](documents\Modules.drawio.png)
+![Module design](documents/Modules.drawio.png)
