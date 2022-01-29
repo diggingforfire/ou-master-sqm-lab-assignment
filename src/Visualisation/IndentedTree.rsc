@@ -5,7 +5,7 @@ import ListRelation;
 import Set;
 import util::Math;
 import IO;
-import Importer;
+import InputOutput::Importer;
 import Exporter;
 import util::Editors;
 import lang::java::m3::Core;
